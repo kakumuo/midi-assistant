@@ -2,7 +2,15 @@
   "compilerOptions": {
     "jsx": "react-native",
     "module": "commonjs",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "tailwind.config": [
+        "./tailwind.config.js"
+      ]
+    }
   },
   "exclude": [
     "node_modules"
