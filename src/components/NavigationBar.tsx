@@ -1,7 +1,7 @@
 import React from "react";
-import { Box } from "@/components/ui/box";
+import { Box } from "@/src/components/box";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/button";
 
 
 export type NavigationOption = {

@@ -1,9 +1,9 @@
 import React from "react";
-import { Box } from "@/components/ui/box";
+import { Box } from "@/src/components/box";
 import {Selection}  from '../components/Select'
 import { Pressable, StyleSheet } from "react-native";
-import { Grid, GridItem } from "@/components/ui/grid";
-import { Text } from "@/components/ui/text";
+import { Grid, GridItem } from "@/src/components/grid";
+import { Text } from "@/src/components/text";
 
 export const PracticePage = () => {
     return <Box style={styles.container}>

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import "@/global.css";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { GluestackUIProvider } from "@/src/components/gluestack-ui-provider";
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationBar, NavigationOption } from './components/NavigationBar';
 import { SafeAreaView } from 'react-native-safe-area-context';
