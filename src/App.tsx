@@ -1,40 +1,45 @@
 import { StatusBar } from 'expo-status-bar';
 import "@/global.css";
-import { GluestackUIProvider } from "@/src/components/gluestack-ui-provider";
+import { GluestackUIProvider } from "@/src/components/ui/gluestack-ui-provider";
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationBar, NavigationOption } from './components/NavigationBar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MainView } from './components/MainView';
 import React from 'react';
 import { PracticePage } from './pages/PracticePage';
+import { Box } from './components/ui/box';
 
 
 const navOptions:NavigationOption[] = [
 	{label: 'Practice', value: 'practice', target: <PracticePage />},
-	{label: 'Drills', value: 'drills', target: <MainView><Text>Drills</Text></MainView>},
-	{label: 'Sight Reading', value: 'sight-reading', target: <MainView><Text>Sight Reading</Text></MainView>}
+	{label: 'Drills', value: 'drills', target: <Box style={{alignItems: 'center', justifyContent: 'center'}}><Text>Drills</Text></Box>},
+	{label: 'Sight Reading', value: 'sight-reading', target: <Box style={{alignItems: 'center', justifyContent: 'center'}}><Text>Sight Reading</Text></Box>}
 ]
 
 export default function App() {
 	const [curNavOption, setCurNavOption] = React.useState(navOptions[0].value)
 
 	const handleNavSelect = (navVal:string) => {
-
+		setCurNavOption(navVal)
 	}
 
 	return (
 	<GluestackUIProvider mode="light">
-		<SafeAreaView style={styles.container}>
+		<Box style={styles.container}>
 			<NavigationBar navOptions={navOptions} curNavOption={curNavOption} onNavSelect={handleNavSelect} />
 			{navOptions.find(option => option.value == curNavOption).target}
-		</SafeAreaView>
+		</Box>
 	</GluestackUIProvider>
 	);
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    height: '100%',
+	marginTop: 16,
+	marginBottom: 16,
+	flex: 1,
+	borderColor: 'black', borderStyle: 'solid',
     backgroundColor: '#fff',
   },
 });

@@ -5,6 +5,6 @@
   },
   "app": {
     "entry": "App.tsx",
-    "components": "src/components"
+    "components": "src/components/ui"
   }
 }

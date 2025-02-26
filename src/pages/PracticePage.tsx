@@ -1,13 +1,13 @@
 import React from "react";
-import { Box } from "@/src/components/box";
-import {Selection}  from '../components/Select'
+import { Box } from "@/src/components/ui/box";
 import { Pressable, StyleSheet } from "react-native";
-import { Grid, GridItem } from "@/src/components/grid";
-import { Text } from "@/src/components/text";
+import { Text } from "@/src/components/ui/text";
+import { Selection } from "../components/Select";
+import { HStack } from "../components/ui/hstack";
+import { VStack } from "../components/ui/vstack";
 
 export const PracticePage = () => {
-    return <Box style={styles.container}>
-        
+    return <Box style={styles.container}>        
         {/* header */}
         <Box style={styles.header}>
             <Selection options={["C", "D", "E"]} placeholder="Scale"  />
@@ -18,47 +18,60 @@ export const PracticePage = () => {
             </Pressable>
         </Box>
 
-
         <Box style={styles.main}>
-            <Item />
-            <Item />
-            <Item />
-            <Item />
+            <VStack space="md" style={{flex: 1, padding: 8}}>
+                <HStack space="md" style={{flex: 1}}>
+                    <CardItem />
+                    <CardItem />
+                </HStack>
+                <HStack space="md" style={{flex: 1}}>
+                    <CardItem />
+                    <CardItem />
+                </HStack>
+            </VStack>
         </Box>
     </Box>
 }
 
-const Item = () => {
+const CardItem = (props:{children?:React.JSX.Element}) => {
     return (
-        <Box style={styles.main_item} className="bg-primary-200 p-4 rounded-md"><Text>Item 1</Text></Box>
+        <Pressable style={styles.card_item}>
+            <Text>Item</Text>
+        </Pressable>
     )
 }
 
 const styles = StyleSheet.create({
-    container: {
+    border: {
+        borderColor: 'black', borderStyle: 'solid', borderWidth: 10
     },
+    container: {
+        flexDirection: 'column',
+        flex: 1
+    },
+
     header: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center', 
         gap: 16,
-        padding: 16
-    }, 
-    session_dur_container: {
-        marginLeft: 'auto'
-    },
-    session_dur:{
-        fontWeight: 'bold'
-    }, 
-    main:{
         padding: 16,
-        display: 'flex', 
-        flexWrap: 'wrap',
-        flexDirection: 'row'
+        flex: 0, flexBasis: 'auto'
+    }, 
+        session_dur_container: {
+            marginLeft: 'auto'
+        },
+        session_dur:{
+            fontWeight: 'bold'
+        }, 
+    main:{
+        flex: 2, 
+        borderColor: 'black', borderStyle: 'solid', borderWidth: 1
     },
-    main_item:{
-        flex: 1, 
-        flexShrink: 1, 
-        flexBasis: 1
+    card_item: {
+        flex: 1, backgroundColor: 'lightgray', borderRadius: 4
+    },
+    card_item_long: {
+        flex: 2, backgroundColor: 'lightgray', borderRadius: 4
     }
 })

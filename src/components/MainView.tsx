@@ -1,4 +1,4 @@
-import { Box } from "@/components/ui/box";
+import { Box } from "@/src/components/ui/box";
 import React from "react";
 import { StyleSheet } from "react-native";
 

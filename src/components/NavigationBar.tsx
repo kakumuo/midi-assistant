@@ -1,7 +1,7 @@
 import React from "react";
-import { Box } from "@/src/components/box";
+import { Box } from "@/src/components/ui/box";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { Button } from "@/src/components/button";
+import { Button } from "@/src/components/ui/button";
 
 
 export type NavigationOption = {
@@ -24,8 +24,6 @@ export const NavigationBar = (props:{navOptions:NavigationOption[], curNavOption
 const styles = StyleSheet.create({
     container: {
         padding: 8,
-
-        display: 'flex', 
         flexDirection: 'row',
         alignItems: 'center', 
         gap: 16
@@ -38,10 +36,6 @@ const styles = StyleSheet.create({
     nav: {
         backgroundColor: 'none', 
         fontWeight: 'bold',
-        
-        // borderColor: 'black', 
-        // borderStyle: 'solid', 
-        // borderWidth: 2,
     },
     nav_select: {
         fontStyle: 'italic'
