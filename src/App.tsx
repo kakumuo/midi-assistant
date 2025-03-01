@@ -2,15 +2,20 @@ import { Box } from "@mui/joy";
 import React from "react";
 
 import { NavigationBar, NavigationOption } from "./components/NavigationBar";
-import { StyleSheet } from "./util/types.d";
+import { StyleSheet } from "./util";
 import { PracticePage } from "./pages/PracticePage";
+import { InstrumentType } from "./util/midi";
 
 
 type MidiMap = {[key: string]: WebMidi.MIDIInput}
 export type AppData = {
-    midi: {
-        targetDevice: string, 
+    app: {
         deviceMap: MidiMap, 
+    }, 
+
+    device: {
+        id: string, 
+        details: WebMidi.MIDIInput
     }
 }
 
@@ -22,9 +27,12 @@ export const App = () => {
     const [targetDevice, setTargetDevice] = React.useState(""); 
 
     const appData:AppData = {
-        midi: {
-            deviceMap: deviceMap, 
-            targetDevice: targetDevice
+        app: {
+            deviceMap: deviceMap 
+        }, 
+        device: {
+            id: targetDevice, 
+            details: deviceMap[targetDevice], 
         }
     }
 
@@ -39,8 +47,23 @@ export const App = () => {
                 setTargetDevice(Object.keys(tmpMap)[0]);
             }
         }
+
         midiInit(); 
     }, [])
+
+    React.useEffect(() => {
+        const handleMessage = (e:WebMidi.MIDIMessageEvent) => {
+            console.log(e.data);
+        }
+
+        if(deviceMap && deviceMap.hasOwnProperty(targetDevice))
+            deviceMap[targetDevice].addEventListener('midimessage', handleMessage); 
+
+        return () => {
+            if(deviceMap.hasOwnProperty(targetDevice))
+                deviceMap[targetDevice].removeEventListener('midimessage', handleMessage)
+        }
+    }, [targetDevice])
 
 
     const navOptions:NavigationOption[] = [

@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/joy";
-import { StyleSheet } from "../util/types.d";
+import { StyleSheet } from "../util";
 
 export type NavigationOption = {
     label: string;

@@ -1,5 +1,5 @@
 import { Box, Button, Option, Select, Typography } from "@mui/joy";
-import { formatDurationString, StyleSheet } from "../util/types.d";
+import { formatDurationString, StyleSheet } from "../util";
 import React, { CSSProperties } from "react";
 import { MainPage } from "../components/MainPage";
 

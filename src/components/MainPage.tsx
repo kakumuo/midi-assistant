@@ -1,5 +1,5 @@
 import { Box } from "@mui/joy";
-import { StyleSheet } from "../util/types.d";
+import { StyleSheet } from "../util";
 import React from "react";
 
 type MainPageProps = {
