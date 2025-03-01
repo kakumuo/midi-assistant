@@ -4,80 +4,19 @@ export enum InstrumentActionType {
     PRESS, RELEASE
 }
 
+export type InstrumentNote = {
+    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B",
+    octave: number
+    isAccidental: boolean
+}
+
 export enum InstrumentKey {
-    //Notes: C2 to C7
-    C_2,
-    C_SHARP_2,
-    D_2,
-    D_SHARP_2,
-    E_2,
-    F_2,
-    F_SHARP_2,
-    G_2,
-    G_SHARP_2,
-    A_2,
-    A_SHARP_2,
-    B_2,
-
-    C_3,
-    C_SHARP_3,
-    D_3,
-    D_SHARP_3,
-    E_3,
-    F_3,
-    F_SHARP_3,
-    G_3,
-    G_SHARP_3,
-    A_3,
-    A_SHARP_3,
-    B_3,
-
-    C_4,
-    C_SHARP_4,
-    D_4,
-    D_SHARP_4,
-    E_4,
-    F_4,
-    F_SHARP_4,
-    G_4,
-    G_SHARP_4,
-    A_4,
-    A_SHARP_4,
-    B_4,
-
-    C_5,
-    C_SHARP_5,
-    D_5,
-    D_SHARP_5,
-    E_5,
-    F_5,
-    F_SHARP_5,
-    G_5,
-    G_SHARP_5,
-    A_5,
-    A_SHARP_5,
-    B_5,
-
-    C_6,
-    C_SHARP_6,
-    D_6,
-    D_SHARP_6,
-    E_6,
-    F_6,
-    F_SHARP_6,
-    G_6,
-    G_SHARP_6,
-    A_6,
-    A_SHARP_6,
-    B_6,
-    C_7,
-
-    SUS_BUTTON, 
-    PEDAL, 
-    NOTE_MOD_UP,
-    NOTE_MOD_DOWN, 
-    DIAL_UP,
-    DIAL_DOWN
+    SUS_BUTTON = "SUS",
+    PEDAL = "PEDAL",
+    NOTE_MOD_UP = "MOD_UP",
+    NOTE_MOD_DOWN = "MOD_DOWN",
+    DIAL_UP = "DIAL_UP",
+    DIAL_DOWN = "DIAL_DOWN",
 }
 
 export enum InstrumentType {
@@ -85,55 +24,127 @@ export enum InstrumentType {
     DRUM
 }
 
-export interface InstrumentKeyEvent extends Event {
-    downOrUp:boolean, 
-    velocity: number, 
-    key: InstrumentKey
+export enum IntervalType {
+    MINOR_SECOND = "Minor Second",
+    MAJOR_SECOND = "Major Second",
+    MINOR_THIRD = "Minor Third", 
+    MAJOR_THIRD = "Major Third",
+    PERFECT_FOURTH = "Perfect Fourth",
+    TRITONE = "Tritone",
+    PERFECT_FIFTH = "Perfect Fifth",
+    MINOR_SIXTH = "Minor Sixth",
+    MAJOR_SIXTH = "Major Sixth",
+    MINOR_SEVENTH = "Minor Seventh",
+    MAJOR_SEVENTH = "Major Seventh",
+    PERFECT_OCTAVE = "Octave",
 }
 
-export interface InstrumentStateEvent extends Event {
+
+export enum ChordType {
+    NONE = "",
+    MAJOR = "Major",
+    MINOR = "Minor", 
+    DIMINISHED = "Diminished",
+    AUGMENTED = "Augmented",
+    MAJOR_7TH = "Major 7th",
+    MINOR_7TH = "Minor 7th",
+    DOMINANT_7TH = "Dominant 7th", 
+    HALF_DIMINISHED_7TH = "Half Diminished 7th",
+    DIMINISHED_7TH = "Diminished 7th",
+    MAJOR_9TH = "Major 9th",
+    MINOR_9TH = "Minor 9th",
+    DOMINANT_9TH = "Dominant 9th",
+    MAJOR_11TH = "Major 11th",
+    MINOR_11TH = "Minor 11th", 
+    DOMINANT_11TH = "Dominant 11th",
+    MAJOR_13TH = "Major 13th",
+    MINOR_13TH = "Minor 13th",
+    DOMINANT_13TH = "Dominant 13th",
+    SUS2 = "Sus2",
+    SUS4 = "Sus4",
+    ADD9 = "Add9",
+    SIXTH = "6th",
+    MINOR_6TH = "Minor 6th"
+}
+
+export interface InstrumentKeyEvent  {
+    isPressed:boolean, 
+    velocity: number, 
+    targetKey: InstrumentKey | undefined,
+    targetNote: InstrumentNote | undefined
+}
+
+export interface InstrumentStateEvent  {
     connected:boolean; 
 }
 
-// Map MIDI note numbers to InstrumentKey enum values
-const noteMap: {[key: number]: InstrumentKey} = {
-    48: InstrumentKey.C_4,
-    49: InstrumentKey.C_SHARP_4,
-    50: InstrumentKey.D_4,
-    51: InstrumentKey.D_SHARP_4,
-    52: InstrumentKey.E_4,
-    53: InstrumentKey.F_4,
-    54: InstrumentKey.F_SHARP_4,
-    55: InstrumentKey.G_4,
-    56: InstrumentKey.G_SHARP_4,
-    57: InstrumentKey.A_4,
-    58: InstrumentKey.A_SHARP_4,
-    59: InstrumentKey.B_4,
-    60: InstrumentKey.C_5,
-    61: InstrumentKey.C_SHARP_5,
-    62: InstrumentKey.D_5,
-    63: InstrumentKey.D_SHARP_5,
-    64: InstrumentKey.E_5,
-    65: InstrumentKey.F_5,
-    66: InstrumentKey.F_SHARP_5,
-    67: InstrumentKey.G_5,
-    68: InstrumentKey.G_SHARP_5,
-    69: InstrumentKey.A_5,
-    70: InstrumentKey.A_SHARP_5,
-    71: InstrumentKey.B_5,
-    72: InstrumentKey.C_6,
-    73: InstrumentKey.C_SHARP_6,
-    74: InstrumentKey.D_6,
-    75: InstrumentKey.D_SHARP_6,
-    76: InstrumentKey.E_6,
-    77: InstrumentKey.F_6,
-    78: InstrumentKey.F_SHARP_6,
-    79: InstrumentKey.G_6,
-    80: InstrumentKey.G_SHARP_6,
-    81: InstrumentKey.A_6,
-    82: InstrumentKey.A_SHARP_6,
-    83: InstrumentKey.B_6,
-    84: InstrumentKey.C_7,
+// Map MIDI note numbers to InstrumentKey and octave
+const noteMap: {[key: number]: InstrumentNote} = {
+    36: {key: "C", octave: 3, isAccidental: false},
+    37: {key: "C#", octave: 3, isAccidental: true},
+    38: {key: "D", octave: 3, isAccidental: false},
+    39: {key: "D#", octave: 3, isAccidental: true},
+    40: {key: "E", octave: 3, isAccidental: false},
+    41: {key: "F", octave: 3, isAccidental: false},
+    42: {key: "F#", octave: 3, isAccidental: true},
+    43: {key: "G", octave: 3, isAccidental: false},
+    44: {key: "G#", octave: 3, isAccidental: true},
+    45: {key: "A", octave: 3, isAccidental: false},
+    46: {key: "A#", octave: 3, isAccidental: true},
+    47: {key: "B", octave: 3, isAccidental: false},
+
+    48: {key: "C", octave: 4, isAccidental: false},
+    49: {key: "C#", octave: 4, isAccidental: true},
+    50: {key: "D", octave: 4, isAccidental: false},
+    51: {key: "D#", octave: 4, isAccidental: true},
+    52: {key: "E", octave: 4, isAccidental: false},
+    53: {key: "F", octave: 4, isAccidental: false},
+    54: {key: "F#", octave: 4, isAccidental: true},
+    55: {key: "G", octave: 4, isAccidental: false},
+    56: {key: "G#", octave: 4, isAccidental: true},
+    57: {key: "A", octave: 4, isAccidental: false},
+    58: {key: "A#", octave: 4, isAccidental: true},
+    59: {key: "B", octave: 4, isAccidental: false},
+
+    60: {key: "C", octave: 5, isAccidental: false},
+    61: {key: "C#", octave: 5, isAccidental: true},
+    62: {key: "D", octave: 5, isAccidental: false},
+    63: {key: "D#", octave: 5, isAccidental: true},
+    64: {key: "E", octave: 5, isAccidental: false},
+    65: {key: "F", octave: 5, isAccidental: false},
+    66: {key: "F#", octave: 5, isAccidental: true},
+    67: {key: "G", octave: 5, isAccidental: false},
+    68: {key: "G#", octave: 5, isAccidental: true},
+    69: {key: "A", octave: 5, isAccidental: false},
+    70: {key: "A#", octave: 5, isAccidental: true},
+    71: {key: "B", octave: 5, isAccidental: false},
+
+    72: {key: "C", octave: 6, isAccidental: false},
+    73: {key: "C#", octave: 6, isAccidental: true},
+    74: {key: "D", octave: 6, isAccidental: false},
+    75: {key: "D#", octave: 6, isAccidental: true},
+    76: {key: "E", octave: 6, isAccidental: false},
+    77: {key: "F", octave: 6, isAccidental: false},
+    78: {key: "F#", octave: 6, isAccidental: true},
+    79: {key: "G", octave: 6, isAccidental: false},
+    80: {key: "G#", octave: 6, isAccidental: true},
+    81: {key: "A", octave: 6, isAccidental: false},
+    82: {key: "A#", octave: 6, isAccidental: true},
+    83: {key: "B", octave: 6, isAccidental: false},
+    
+    84: {key: "C", octave: 7, isAccidental: false},
+    85: {key: "C#", octave: 7, isAccidental: true},
+    86: {key: "D", octave: 7, isAccidental: false},
+    87: {key: "D#", octave: 7, isAccidental: true},
+    88: {key: "E", octave: 7, isAccidental: false},
+    89: {key: "F", octave: 7, isAccidental: false},
+    90: {key: "F#", octave: 7, isAccidental: true},
+    91: {key: "G", octave: 7, isAccidental: false},
+    92: {key: "G#", octave: 7, isAccidental: true},
+    93: {key: "A", octave: 7, isAccidental: false},
+    94: {key: "A#", octave: 7, isAccidental: true},
+    95: {key: "B", octave: 7, isAccidental: false},
+    96: {key: "C", octave: 8, isAccidental: false}
 };
 
 
@@ -146,24 +157,46 @@ class PianoContext implements InstrumentContext {
     constructor() {}
     parseMessage = (e: WebMidi.MIDIMessageEvent) => {
         const data = e.data;
-        const downOrUp = data[0] === 144; // 144 = note on, 128 = note off
-        const velocity = data[2];
-        const midiNote = data[1];
-        
-        // Convert MIDI note number to InstrumentKey enum
-        let key = InstrumentKey.C_4; // Default fallback
-        
 
-        if (midiNote in noteMap) {
-            key = noteMap[midiNote];
+        const prefix = data[0]; 
+        const midiNote = data[1];
+        let velocity = data[2];
+
+        // Convert MIDI note number to InstrumentKey enum
+        let note:InstrumentNote | undefined = undefined; 
+        let key:InstrumentKey | undefined = undefined; 
+        let isPressed:boolean = false; 
+        let isNote:boolean = false; 
+        let isAccidental:boolean = false;
+        let octave:number = 4;
+
+        // process note
+        if((prefix == 128 || prefix == 144) && midiNote >= 36 && midiNote <= 96){
+            note = noteMap[midiNote];
+            isPressed = prefix == 144;    
+            isNote = true; 
+            velocity = !isPressed ? 0 : velocity; 
+        }else if (prefix == 176 && midiNote == 64){
+            key = InstrumentKey.PEDAL;
+            isPressed = velocity > 0; 
+            velocity = 0; 
+        }else if (prefix == 176 && midiNote == 72){
+            key = InstrumentKey.SUS_BUTTON;
+            isPressed = velocity == 116; 
+            velocity = 0; 
+        }else if(prefix == 224) {
+            key = velocity > 64 ? InstrumentKey.NOTE_MOD_UP : InstrumentKey.NOTE_MOD_DOWN;
+            isPressed = true; 
         }
 
-        return {
-            downOrUp,
+        const event:InstrumentKeyEvent = {
+            isPressed,
             velocity,
-            key,
-            type: 'instrumentkey'
-        } as InstrumentKeyEvent;
+            targetNote: note,
+            targetKey: key,
+        };
+
+        return event;
     };
 
     parseState = (e: WebMidi.MIDIConnectionEvent) => {
@@ -192,8 +225,10 @@ export class InstrumentController {
 
         this.setInput(input)
         this.setContext(this.context); 
-    }
+    }                                                                                                                                                                                                                                                                         
 
+
+    //TODO: Filter output depending on whether it is 
     addStateListener(listener:(e:InstrumentStateEvent)=>void) {
         const f = (ev:WebMidi.MIDIConnectionEvent) => listener(this.context.parseState(ev)); 
         this.input.addEventListener('statechange', f); 

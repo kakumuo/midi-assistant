@@ -4,7 +4,7 @@ import React from "react";
 import { NavigationBar, NavigationOption } from "./components/NavigationBar";
 import { StyleSheet } from "./util";
 import { PracticePage } from "./pages/PracticePage";
-import { InstrumentType } from "./util/midi";
+import { InstrumentController, InstrumentType } from "./util/midi";
 
 
 type MidiMap = {[key: string]: WebMidi.MIDIInput}
@@ -13,10 +13,7 @@ export type AppData = {
         deviceMap: MidiMap, 
     }, 
 
-    device: {
-        id: string, 
-        details: WebMidi.MIDIInput
-    }
+    instrument: InstrumentController | undefined
 }
 
 export const AppContext = React.createContext({} as AppData); 
@@ -24,16 +21,13 @@ export const AppContext = React.createContext({} as AppData);
 export const App = () => {
     const [curPageI, setCurPageI] = React.useState(0)
     const [deviceMap, setDeviceMap] = React.useState({} as MidiMap)
-    const [targetDevice, setTargetDevice] = React.useState(""); 
+    const [instrument, setInstrument] = React.useState<InstrumentController | undefined>(undefined); 
 
     const appData:AppData = {
         app: {
             deviceMap: deviceMap 
         }, 
-        device: {
-            id: targetDevice, 
-            details: deviceMap[targetDevice], 
-        }
+        instrument: instrument
     }
 
     React.useEffect(() => {
@@ -44,26 +38,13 @@ export const App = () => {
                 access.inputs.forEach((k, v) => tmpMap[v] = k);
                 setDeviceMap(tmpMap); 
 
-                setTargetDevice(Object.keys(tmpMap)[0]);
+                let instrument = new InstrumentController(Object.values(tmpMap)[0])
+                setInstrument(instrument); 
             }
         }
 
         midiInit(); 
     }, [])
-
-    React.useEffect(() => {
-        const handleMessage = (e:WebMidi.MIDIMessageEvent) => {
-            console.log(e.data);
-        }
-
-        if(deviceMap && deviceMap.hasOwnProperty(targetDevice))
-            deviceMap[targetDevice].addEventListener('midimessage', handleMessage); 
-
-        return () => {
-            if(deviceMap.hasOwnProperty(targetDevice))
-                deviceMap[targetDevice].removeEventListener('midimessage', handleMessage)
-        }
-    }, [targetDevice])
 
 
     const navOptions:NavigationOption[] = [
@@ -73,10 +54,12 @@ export const App = () => {
 
     return(
     <AppContext.Provider value={appData}>
-        <Box style={styles.container}>
-            <NavigationBar options={navOptions} curPageI={curPageI} setCurPageI={setCurPageI} />
-            {navOptions[curPageI].target}
-        </Box>
+        {instrument && 
+            <Box style={styles.container}>
+                <NavigationBar options={navOptions} curPageI={curPageI} setCurPageI={setCurPageI} />
+                {navOptions[curPageI].target}
+            </Box>
+        }
     </AppContext.Provider>
 
     ); 

@@ -2,6 +2,9 @@ import { Box, Button, Option, Select, Typography } from "@mui/joy";
 import { formatDurationString, StyleSheet } from "../util";
 import React, { CSSProperties } from "react";
 import { MainPage } from "../components/MainPage";
+import { AppContext } from "../App";
+import { ChordType, InstrumentKey, InstrumentKeyEvent, InstrumentNote, IntervalType } from "../util/midi";
+import { identifyChord } from "../util/midi/identifyChord";
 
 const modes = [
     "Major",
@@ -32,7 +35,6 @@ const scales = [
     "A#/Bb",
     "B"
 ]
-
 
 export const PracticePage = () => {
     const [sessionsStartTS, setSessionsStartTS] = React.useState(new Date()); 
@@ -69,12 +71,42 @@ const ItemPane = (props:{style?:React.CSSProperties, children?: React.ReactNode}
         {props.children}
     </Box>
 }
-
 const Pane_ScaleView = (props:{style?:React.CSSProperties}) => {
+    const [notes, setNotes] = React.useState<InstrumentNote[]>([])
+    const [sustain, setSustain] = React.useState(false); 
+    const appData = React.useContext(AppContext); 
+
+    React.useEffect(() => {
+        if(!appData.instrument) return; 
+
+        const handleMessage = (e:InstrumentKeyEvent) => {
+            if(!e.targetNote) return; 
+            if(e.isPressed) {
+                setNotes(prev => [...prev, e.targetNote!]) 
+            } else {
+                setNotes(prev => prev.filter(n => n !== e.targetNote))
+            }
+        }
+
+        appData.instrument.addMessageListener(handleMessage);
+    }, [])
+
+    const notesSorted = React.useMemo(() => {
+        // Sort notes by pitch for consistent display
+        return [...notes].sort((a,b) => {
+            if(a.octave !== b.octave) return a.octave - b.octave;
+            const keyOrder = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+            return keyOrder.indexOf(a.key) - keyOrder.indexOf(b.key);
+        });
+    }, [notes]);
+
+    const displayText = React.useMemo(() => identifyChord(notesSorted), [notesSorted])
+
     return (
         <ItemPane style={{...props.style, ...styles.pane_scale}}>
-            <Typography level="h1">Something</Typography>
-            <Typography level="body-sm">Something</Typography>
+            <Typography level="h1">{displayText}</Typography>
+            <Typography level="body-sm">{notesSorted.map(n => `${n.key}${n.octave}`).join(" - ")}</Typography>
+            <Typography level="body-xs">Sustain: {sustain ? "On" : "Off"}</Typography>
         </ItemPane>
     )
 }
@@ -124,9 +156,9 @@ const styles:StyleSheet = {
     }, 
 
     pane_scale: {
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center'
+        display: 'grid', 
+        gridTemplateColumns: 'auto', 
+        gridTemplateRows: 'repeat(auto-fill, 1fr)',
+        textAlign: 'center'
     }
 }
