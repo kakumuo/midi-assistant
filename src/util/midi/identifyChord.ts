@@ -66,6 +66,7 @@ export const identifyChord = (notesSorted:InstrumentNote[]) => {
 
             // console.log(intervals.join("-"))
             
+            // TODO: add inversions and 4+note chords with omitted notes
             switch(intervals.join("-")){
                 case "4-7":         targetChord = "maj"; foundChord = true; break;
                 case "3-7":         targetChord = "min"; foundChord = true; break;

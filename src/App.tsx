@@ -3,7 +3,7 @@ import React from "react";
 
 import { NavigationBar, NavigationOption } from "./components/NavigationBar";
 import { StyleSheet } from "./util";
-import { PracticePage } from "./pages/PracticePage";
+import { PracticePage } from "./pages/practice";
 import { InstrumentInputProvider } from "./util/midi/InputManager";
 
 
@@ -22,7 +22,7 @@ export const App = () => {
                 {navOptions[curPageI].target}
             </Box>
         </InstrumentInputProvider>
-    ); 
+    );
 }
 
 const styles:StyleSheet = {
@@ -31,12 +31,11 @@ const styles:StyleSheet = {
         gridTemplateColumns: 'auto',
         gridTemplateRows: 'auto 1fr',
         border: 'solid 1px black', 
-        height: '100dvh', 
+        height: '100dvh',
         padding: 8,
-        gap: 8
-        // width: '100dvw', 
+        gap: 8,
     }, 
-    page: { 
+    page: {
         border: 'solid 1px red',
     }
 }

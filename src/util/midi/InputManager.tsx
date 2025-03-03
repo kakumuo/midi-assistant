@@ -163,7 +163,7 @@ export class InstrumentInputManager {
                 source: 'kbd', //TODO: add detection for different sources
                 type: InstrumentEventType.NOTE, 
                 isPressed: false, 
-                targetNote: prev, 
+                note: prev, 
                 velocity: 64 //TODO: pass velocity into the note set
             } as InstrumentNoteEvent); 
         }
@@ -173,7 +173,7 @@ export class InstrumentInputManager {
                 source: 'kbd', //TODO: add detection for different sources
                 type: InstrumentEventType.NOTE, 
                 isPressed: true, 
-                targetNote: next, 
+                note: next, 
                 velocity: 64 //TODO: pass velocity into the note set
             } as InstrumentNoteEvent); 
         }

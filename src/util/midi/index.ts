@@ -108,7 +108,7 @@ export interface InstrumentKeyEvent extends InstrumentEvent  {
 export interface InstrumentNoteEvent extends InstrumentEvent {
     velocity:number, 
     isPressed:boolean, 
-    targetNote: InstrumentNote
+    note: InstrumentNote
 }
 
 

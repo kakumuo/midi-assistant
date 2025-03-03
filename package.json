@@ -10,10 +10,10 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/webmidi": "^2.1.0",
+    "colorjs.io": "^0.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-scripts": "^5.0.1",
-    "typescript": "^5.8.2"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start"
