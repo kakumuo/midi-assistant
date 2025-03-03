@@ -1,6 +1,10 @@
 # Overview
 A midi visualizer for piano
 
+### Inspriation 
+- Kepiano: https://x.com/kepano/status/1884672012292923580/video/1
+
+
 ## Dependencies
 - React 
 - MUI Joy

@@ -1,13 +1,37 @@
 
-
-export enum InstrumentActionType {
-    PRESS, RELEASE
-}
-
 export type InstrumentNote = {
-    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B",
+    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"
     octave: number
     isAccidental: boolean
+}
+
+export enum InstrumentNoteKey {
+    C = "C",
+    C_SHARP = "C#",
+    D = "D",
+    D_SHARP = "D#",
+    E = "E",
+    F = "F",
+    F_SHARP = "F#",
+    G = "G",
+    G_SHARP = "G#",
+    A = "A",
+    A_SHARP = "A#",
+    B = "B"
+}
+export const noteDataMap:Record<InstrumentNoteKey, {color:string}> = {
+    [InstrumentNoteKey.C]:          { color: "#FF0000" },
+    [InstrumentNoteKey.C_SHARP]:    { color: "#FF4500" },
+    [InstrumentNoteKey.D]:          { color: "#FFA500" },
+    [InstrumentNoteKey.D_SHARP]:    { color: "#FFD700" },
+    [InstrumentNoteKey.E]:          { color: "#ADFF2F" },
+    [InstrumentNoteKey.F]:          { color: "#32CD32" },
+    [InstrumentNoteKey.F_SHARP]:    { color: "#008000" },
+    [InstrumentNoteKey.G]:          { color: "#006400" },
+    [InstrumentNoteKey.G_SHARP]:    { color: "#4B0082" },
+    [InstrumentNoteKey.A]:          { color: "#483D8B" },
+    [InstrumentNoteKey.A_SHARP]:    { color: "#000080" },
+    [InstrumentNoteKey.B]:          { color: "#0000CD" },
 }
 
 export enum InstrumentKey {
@@ -17,11 +41,6 @@ export enum InstrumentKey {
     NOTE_MOD_DOWN = "MOD_DOWN",
     DIAL_UP = "DIAL_UP",
     DIAL_DOWN = "DIAL_DOWN",
-}
-
-export enum InstrumentType {
-    PIANO, 
-    DRUM
 }
 
 export enum IntervalType {
@@ -67,19 +86,34 @@ export enum ChordType {
     MINOR_6TH = "Minor 6th"
 }
 
-export interface InstrumentKeyEvent  {
-    isPressed:boolean, 
-    velocity: number, 
-    targetKey: InstrumentKey | undefined,
-    targetNote: InstrumentNote | undefined
+export const enum InstrumentEventType {
+    NOTE = 'note', 
+    KEY = 'key', 
+    STATE = 'state'
 }
 
-export interface InstrumentStateEvent  {
+export interface InstrumentEvent {
+    source:string, 
+    type:InstrumentEventType,
+}
+
+export interface InstrumentStateEvent extends InstrumentEvent {
     connected:boolean; 
 }
 
+export interface InstrumentKeyEvent extends InstrumentEvent  {
+    connected:boolean; 
+}
+
+export interface InstrumentNoteEvent extends InstrumentEvent {
+    velocity:number, 
+    isPressed:boolean, 
+    targetNote: InstrumentNote
+}
+
+
 // Map MIDI note numbers to InstrumentKey and octave
-const noteMap: {[key: number]: InstrumentNote} = {
+export const midiNoteMap: {[key: number]: InstrumentNote} = {
     36: {key: "C", octave: 3, isAccidental: false},
     37: {key: "C#", octave: 3, isAccidental: true},
     38: {key: "D", octave: 3, isAccidental: false},
@@ -148,133 +182,4 @@ const noteMap: {[key: number]: InstrumentNote} = {
 };
 
 
-interface InstrumentContext {
-    parseMessage:(e:WebMidi.MIDIMessageEvent)=>InstrumentKeyEvent; 
-    parseState:(e:WebMidi.MIDIConnectionEvent)=>InstrumentStateEvent; 
-}
 
-class PianoContext implements InstrumentContext {
-    constructor() {}
-    parseMessage = (e: WebMidi.MIDIMessageEvent) => {
-        const data = e.data;
-
-        const prefix = data[0]; 
-        const midiNote = data[1];
-        let velocity = data[2];
-
-        // Convert MIDI note number to InstrumentKey enum
-        let note:InstrumentNote | undefined = undefined; 
-        let key:InstrumentKey | undefined = undefined; 
-        let isPressed:boolean = false; 
-        let isNote:boolean = false; 
-        let isAccidental:boolean = false;
-        let octave:number = 4;
-
-        // process note
-        if((prefix == 128 || prefix == 144) && midiNote >= 36 && midiNote <= 96){
-            note = noteMap[midiNote];
-            isPressed = prefix == 144;    
-            isNote = true; 
-            velocity = !isPressed ? 0 : velocity; 
-        }else if (prefix == 176 && midiNote == 64){
-            key = InstrumentKey.PEDAL;
-            isPressed = velocity > 0; 
-            velocity = 0; 
-        }else if (prefix == 176 && midiNote == 72){
-            key = InstrumentKey.SUS_BUTTON;
-            isPressed = velocity == 116; 
-            velocity = 0; 
-        }else if(prefix == 224) {
-            key = velocity > 64 ? InstrumentKey.NOTE_MOD_UP : InstrumentKey.NOTE_MOD_DOWN;
-            isPressed = true; 
-        }
-
-        const event:InstrumentKeyEvent = {
-            isPressed,
-            velocity,
-            targetNote: note,
-            targetKey: key,
-        };
-
-        return event;
-    };
-
-    parseState = (e: WebMidi.MIDIConnectionEvent) => {
-        return {
-            connected: true,
-            type: 'instrumentstate',
-        } as InstrumentStateEvent;
-    };
-}
-
-export class InstrumentController {
-    private input:WebMidi.MIDIInput
-    private listeners:{
-        ['statechange']: Map<CallableFunction, CallableFunction>
-        ['midimessage']: Map<CallableFunction, CallableFunction>
-    }
-    private context:InstrumentContext
-
-    constructor(input:WebMidi.MIDIInput){
-        this.listeners = {
-            statechange: new Map(), 
-            midimessage: new Map()
-        } 
-        this.input = input; 
-        this.context = new PianoContext(); 
-
-        this.setInput(input)
-        this.setContext(this.context); 
-    }                                                                                                                                                                                                                                                                         
-
-
-    //TODO: Filter output depending on whether it is 
-    addStateListener(listener:(e:InstrumentStateEvent)=>void) {
-        const f = (ev:WebMidi.MIDIConnectionEvent) => listener(this.context.parseState(ev)); 
-        this.input.addEventListener('statechange', f); 
-        (!this.listeners.statechange.has(listener))
-            this.listeners.statechange.set(listener, f); 
-    }
-    addMessageListener(listener:(e:InstrumentKeyEvent)=>void) {
-        const f = (ev:WebMidi.MIDIMessageEvent) => listener(this.context.parseMessage(ev));
-        this.input.addEventListener('midimessage', f);
-        if(!this.listeners.midimessage.has(listener))
-            this.listeners.midimessage.set(listener, f);
-    }
-
-    removeStateListener(listener:(e:InstrumentStateEvent)=>void) {
-        const f:any = this.listeners.statechange.get(listener);
-        if(this.listeners.statechange.has(listener)) {
-            this.input.removeEventListener('statechange', f);
-            this.listeners.statechange.delete(listener);
-        }
-    }
-
-    removeMessageListener(listener:(e:InstrumentKeyEvent)=>void) {
-        const f:any = this.listeners.midimessage.get(listener);
-        if(f) {
-            this.input.removeEventListener('midimessage', f);
-            this.listeners.midimessage.delete(listener);
-        }
-    }
-
-    setContext(context:InstrumentContext) {
-        this.context = context;
-    }
-
-    setInput(input:WebMidi.MIDIInput) {
-        // transfer state change
-        for(const f of this.listeners.statechange.values()) {
-            this.input.removeEventListener('statechange', f as any);
-            input.addEventListener('statechange', f as any);
-        }
-
-        // transfer message change
-        for(const f of this.listeners.midimessage.values()) {
-            this.input.removeEventListener('midimessage', f as any);
-            input.addEventListener('midimessage', f as any);
-        }
-
-        this.input = input;
-    }
-}
