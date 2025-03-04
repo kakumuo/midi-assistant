@@ -9,6 +9,7 @@ A midi visualizer for piano
 - React 
 - MUI Joy
 - Web Midi
+- Tonal
 
 # Todo
 ### Fixes
@@ -17,6 +18,7 @@ A midi visualizer for piano
     - Onscreen Virtual Keyboard (Controllable on PC Keyboard)
     - Save data to browser/server
     - Profile System
+    - Use Notes type/class from 'tonal' library
 - Practice
     - Session Duration: Pause, Reset, Start Countdown Timer
     - Chord Viewer

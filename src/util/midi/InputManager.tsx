@@ -4,25 +4,25 @@ import { InstrumentEvent, InstrumentEventType, InstrumentKey, InstrumentKeyEvent
 
 const kbdNoteMap:{[key:string]: InstrumentNote} = {
     // Map keyboard keys to notes (2 octaves starting from C4)
-    'a': {key: "C", octave: 4, isAccidental: false},
-    'w': {key: "C#", octave: 4, isAccidental: true},
-    's': {key: "D", octave: 4, isAccidental: false}, 
-    'e': {key: "D#", octave: 4, isAccidental: true},
-    'd': {key: "E", octave: 4, isAccidental: false},
-    'f': {key: "F", octave: 4, isAccidental: false},
-    't': {key: "F#", octave: 4, isAccidental: true},
-    'g': {key: "G", octave: 4, isAccidental: false},
-    'y': {key: "G#", octave: 4, isAccidental: true},
-    'h': {key: "A", octave: 4, isAccidental: false},
-    'u': {key: "A#", octave: 4, isAccidental: true},
-    'j': {key: "B", octave: 4, isAccidental: false},
+    'a': {key: "C", octave: 4},
+    'w': {key: "C#", octave: 4},
+    's': {key: "D", octave: 4}, 
+    'e': {key: "D#", octave: 4},
+    'd': {key: "E", octave: 4},
+    'f': {key: "F", octave: 4},
+    't': {key: "F#", octave: 4},
+    'g': {key: "G", octave: 4},
+    'y': {key: "G#", octave: 4},
+    'h': {key: "A", octave: 4},
+    'u': {key: "A#", octave: 4},
+    'j': {key: "B", octave: 4},
 
-    'k': {key: "C", octave: 5, isAccidental: false},
-    'o': {key: "C#", octave: 5, isAccidental: true},
-    'l': {key: "D", octave: 5, isAccidental: false},
-    'p': {key: "D#", octave: 5, isAccidental: true},
-    ';': {key: "E", octave: 5, isAccidental: false},
-    "'": {key: "F", octave: 5, isAccidental: false}
+    'k': {key: "C", octave: 5},
+    'o': {key: "C#", octave: 5},
+    'l': {key: "D", octave: 5},
+    'p': {key: "D#", octave: 5},
+    ';': {key: "E", octave: 5},
+    "'": {key: "F", octave: 5}
 }
 
 export class InstrumentInputManager {

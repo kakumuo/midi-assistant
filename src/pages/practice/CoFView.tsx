@@ -7,21 +7,21 @@ import { ItemPane } from ".";
 import { StyleSheet } from "../../util";
 
 const styles:StyleSheet = {
-    container: {display: 'flex', width: '100%', height: '100%', alignContent: 'center'}
+    container: {display: 'flex', alignItems: 'center', justifyContent: 'center'}
 }
 
 export const CoFView = (props: {style?:React.CSSProperties}) => {
-    const [containerDim, setContainerDim] = React.useState({width: 300, height: 300})
+    const [containerDim, setContainerDim] = React.useState({width: 0, height: 0})
     const activeNotes = useActiveNotes(); 
     const canvasRef = React.useRef<HTMLCanvasElement>(null); 
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
-        if(!containerRef.current) return; 
-        const container = (containerRef.current as HTMLDivElement); 
+        if(!canvasRef.current) return; 
+        const container = (canvasRef.current as HTMLCanvasElement); 
         const handleResize = () => {
             const {width, height} = container.getBoundingClientRect()
-            setContainerDim({width, height})
+            setContainerDim({width: Math.min(width, height), height: Math.min(width, height)})
         }
 
         const observer = new ResizeObserver(handleResize); 
@@ -130,8 +130,9 @@ export const CoFView = (props: {style?:React.CSSProperties}) => {
             <canvas 
                 ref={canvasRef}
                 style={{
-                    width: "100%",
-                    height: "100%", 
+                    width: "300px",
+                    height: "300px", 
+                    borderRadius: '50%', 
                 }}
             />
         </ItemPane>

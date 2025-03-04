@@ -12,8 +12,6 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
     return (
         <ItemPane style={{...props.style, ...styles.container}}>
 
-        {/* Main */}
-        <Box style={styles.main}>
             <Box>
                 <Typography>Tempo</Typography>
                 <Button>Reset</Button>
@@ -45,20 +43,17 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
                 <Typography>Tempo</Typography>              <Input type="number" value={metroData.tempo} />
                 <Typography>Beats Per Measure</Typography>  <Input type="number" value={metroData.bpm} />
             </Box>
-        </Box>
 
         </ItemPane>
     ); 
 } 
 
 
-const styles:StyleSheet = {
-    container: {display: 'grid', gridTemplateRows: 'auto 1fr', gridTemplateColumns: '100%', overflow: 'hidden'}, 
-    
+const styles:StyleSheet = {    
     header: {
         display: 'flex'
     }, 
-    main: {
+    container: {
         display: 'grid', gridTemplateColumns: 'auto auto', gridTemplateRows: 'repeat(auto-fill, 1fr)', overflowY: 'scroll', height: '100%',
         gap: 8, 
         rowGap: 16,

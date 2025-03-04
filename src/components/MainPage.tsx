@@ -23,8 +23,8 @@ const styles: StyleSheet = {
         padding: 8,
         borderRadius: 8,
         backgroundColor: '#fff',
-        height: '100%',
-        width: '100%',
+        height: 'auto',
+        width: 'auto',
         border: 'solid lightgray 1px'
     }
 }

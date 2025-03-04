@@ -27,13 +27,11 @@ export const App = () => {
 
 const styles:StyleSheet = {
     container: {
-        display: 'grid', 
-        gridTemplateColumns: 'auto',
-        gridTemplateRows: 'auto 1fr',
+        display: 'flex', 
+        flexDirection: 'column', 
         border: 'solid 1px black', 
-        height: '100dvh',
+        height: '100vh',
         padding: 8,
-        gap: 8,
     }, 
     page: {
         border: 'solid 1px red',

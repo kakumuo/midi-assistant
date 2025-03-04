@@ -1,19 +1,136 @@
-import { Box } from "@mui/joy";
+import { Box, Button, Typography } from "@mui/joy";
 import React from "react";
-import { InstrumentNote } from "../util/midi";
+import { InstrumentNote, noteDataMap } from "../util/midi";
 import { useActiveNotes } from "../util/midi/InputManager";
+import { StyleSheet } from "../util";
+import Color from "colorjs.io";
 
 
 type VirtualKey = {
     key:InstrumentNote, 
 }
 
-const VirtualKeyboard = () => {
+const notes:InstrumentNote[] = [
+    {key: 'C', octave: 2},
+    {key: 'C#', octave: 2},
+    {key: 'D', octave: 2},
+    {key: 'D#', octave: 2},
+    {key: 'E', octave: 2},
+    {key: 'F', octave: 2},
+    {key: 'F#', octave: 2},
+    {key: 'G', octave: 2},
+    {key: 'G#', octave: 2},
+    {key: 'A', octave: 2},
+    {key: 'A#', octave: 2},
+    {key: 'B', octave: 2},
+    {key: 'C', octave: 3},
+    {key: 'C#', octave: 3},
+    {key: 'D', octave: 3},
+    {key: 'D#', octave: 3},
+    {key: 'E', octave: 3},
+    {key: 'F', octave: 3},
+    {key: 'F#', octave: 3},
+    {key: 'G', octave: 3},
+    {key: 'G#', octave: 3},
+    {key: 'A', octave: 3},
+    {key: 'A#', octave: 3},
+    {key: 'B', octave: 3},
+    {key: 'C', octave: 4},
+    {key: 'C#', octave: 4},
+    {key: 'D', octave: 4},
+    {key: 'D#', octave: 4},
+    {key: 'E', octave: 4},
+    {key: 'F', octave: 4},
+    {key: 'F#', octave: 4},
+    {key: 'G', octave: 4},
+    {key: 'G#', octave: 4},
+    {key: 'A', octave: 4},
+    {key: 'A#', octave: 4},
+    {key: 'B', octave: 4},
+    {key: 'C', octave: 5},
+    {key: 'C#', octave: 5},
+    {key: 'D', octave: 5},
+    {key: 'D#', octave: 5},
+    {key: 'E', octave: 5},
+    {key: 'F', octave: 5},
+    {key: 'F#', octave: 5},
+    {key: 'G', octave: 5},
+    {key: 'G#', octave: 5},
+    {key: 'A', octave: 5},
+    {key: 'A#', octave: 5},
+    {key: 'B', octave: 5},
+]
+
+export const VirtualKeyboard = () => {
     const activeNotes = useActiveNotes(); 
 
-    return (
-        <Box>
+    const keys = React.useMemo(() => {
+        return notes.map((note, i) => {
+            const isAccidental = note.key.includes("#");
+            let isPressed = false; 
+            const noteWidth = 48
+            const accidentalWidth = noteWidth / 1.25
+
+            const colors = {color: "", backgroundColor: "", borderColor: ""}
             
+            activeNotes.forEach(n => {if(n.key == note.key && n.octave == note.octave) isPressed = true}); 
+
+            if(isPressed) {
+                colors.color = `${new Color(noteDataMap[note.key].color).darken(2)}`; 
+                colors.borderColor = colors.color; 
+                colors.backgroundColor = noteDataMap[note.key].color; 
+            }else if (isAccidental) {
+                colors.color = 'white'; 
+                colors.backgroundColor = 'black'; 
+                colors.borderColor = 'black';
+            }else {
+                colors.color = 'black'; 
+                colors.backgroundColor = 'white'; 
+                colors.borderColor = 'black';
+            }
+            
+
+            const keyStyle:React.CSSProperties = {
+                ...colors, 
+                height: isAccidental ? 72 : 128, 
+                marginLeft: isAccidental ? (-1 * accidentalWidth / 2) : i == 0 ? 0 : -1,
+                marginRight: isAccidental ? (-1 * accidentalWidth / 2) : -1,
+                zIndex: isAccidental ? 1 : 0,
+                position: 'relative', 
+                minWidth: isAccidental ? accidentalWidth : noteWidth
+            }
+
+            return <Typography key={i} style={{...styles.key, ...keyStyle}}>{note.key}{note.octave}</Typography>
+        }); 
+    }, [activeNotes]); 
+
+    return (
+        <Box style={styles.container}>
+            {/* keyboard */}
+            <Box style={styles.piano}>
+                {keys}
+            </Box>
         </Box>
     ); 
 }
+
+const styles:StyleSheet = {
+    container: {
+        display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateRows: 'auto', 
+    }, 
+
+    piano: {
+        display: 'flex', overflow: 'scroll'
+    }, 
+    
+    key: {
+        borderBottomLeftRadius: 8, borderBottomRightRadius: 8, border: 'solid 2px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', 
+        padding: 8
+    }, 
+
+    aside: {
+
+    }, 
+}
+
+

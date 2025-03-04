@@ -6,10 +6,12 @@ import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEve
 import { identifyChord } from "../../util/midi/identifyChord";
 import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputManager";
 import Color from "colorjs.io";
-import { ScaleView } from "./ScaleView";
+import { ChordView } from "./ChordView";
 import { HistoryView } from "./HistoryView";
 import { CoFView } from "./CoFView";
 import { StatsView } from "./StatsView";
+import { VirtualKeyboard } from "../../components/VirtualKeyboard";
+import SessionDurationIndicator from "./SessionDuration";
 
 const modes = [
     "Major",
@@ -42,15 +44,8 @@ const scales = [
 ]
 
 export const PracticePage = () => {
-    const [sessionsStartTS, setSessionsStartTS] = React.useState(new Date()); 
-    const [durationString, setDurationString] = React.useState(formatDurationString(sessionsStartTS))
     const [scale, setScale] = React.useState(scales[0]); 
     const [mode, setMode] = React.useState(modes[0]); 
-
-    React.useEffect(() => {
-        const interval = setInterval(() => setDurationString(formatDurationString(sessionsStartTS)), 1000);
-        return () => clearInterval(interval);
-    }, [sessionsStartTS]);
 
     return <MainPage style={styles.container}>
         {/* Header */}
@@ -61,16 +56,18 @@ export const PracticePage = () => {
             <Select value={mode} onChange={(e) => e && e.target && setMode((e.target as any).textContent)}>
                 {modes.map(m => <Option key={m} value={m} label={m} children={m} />)}
             </Select>
-            <Button style={styles.sessiondur_button}>Session Duration: {durationString}</Button>
+            <SessionDurationIndicator />
         </Box>
 
         {/* main content */}
         <Box style={styles.mainContent}>
-            <ScaleView style={{...styles.pane_tl, width: 'auto'}} />
-            <CoFView style={styles.pane_tr} />
-            <HistoryView style={styles.pane_bl} />
+            <ChordView style={{...styles.pane_tl, width: 'auto'}} />
             <StatsView style={styles.pane_br} />
+            <HistoryView style={styles.pane_bl} />
+            <CoFView style={styles.pane_tr} />
         </Box>
+
+        {/* <VirtualKeyboard /> */}
     </MainPage>
 }
 
@@ -82,9 +79,10 @@ export const ItemPane = (props:{style?:React.CSSProperties, ref?:React.Ref<any>,
 
 const styles:StyleSheet = {
     container: {
-        display: 'grid', 
+        display: 'grid',
         gridTemplateColumns: 'auto', 
-        gridTemplateRows: 'auto 1fr'
+        gridTemplateRows: 'auto 1fr 1fr', 
+        overflow: 'auto'
     }, 
     page: {
         border: 'solid 1px red',
@@ -93,17 +91,12 @@ const styles:StyleSheet = {
     header: {
         display: 'flex',
         flexDirection: 'row',
-        gap: 8,
         padding: 8
     }, 
-    sessiondur_button: {
-        marginLeft: 'auto', 
-    }, 
     mainContent: {
-        display: 'grid', 
-        gridTemplateColumns: '2fr 1fr', 
-        gridTemplateRows: '1fr 300px',
-        height: '100%', 
+        display: 'grid',
+        gridTemplateColumns: '50% 50%', 
+        gridTemplateRows: 'minmax(auto, 50%) minmax(auto, 50%)',
         gap: 8, 
     },
 }

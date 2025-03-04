@@ -16,7 +16,7 @@ const styles:StyleSheet = {
     }
 }
 
-export const ScaleView = (props:{style?:React.CSSProperties}) => {
+export const ChordView = (props:{style?:React.CSSProperties}) => {
     const activeNotes = useActiveNotes();
     const [sustain, setSustain] = React.useState(false);     
 
@@ -29,6 +29,7 @@ export const ScaleView = (props:{style?:React.CSSProperties}) => {
     }, [activeNotes]);
 
     const displayText = React.useMemo(() => identifyChord(notesSorted), [notesSorted]); 
+
 
     return (
         <ItemPane style={{...props.style, ...styles.container}}>
