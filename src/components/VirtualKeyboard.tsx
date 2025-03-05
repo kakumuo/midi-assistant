@@ -61,13 +61,32 @@ const notes:InstrumentNote[] = [
     {key: 'B', octave: 5},
 ]
 
-export const VirtualKeyboard = () => {
+export const VirtualKeyboard = (props:{style?:React.CSSProperties}) => {
+    const [containerDim, setContainerDim] = React.useState({width: 0, height: 0}); 
     const activeNotes = useActiveNotes(); 
+    const containerRef = React.useRef<HTMLDivElement>(null); 
+
+    React.useEffect(() => {
+        if(!containerRef.current) return; 
+        const container = (containerRef.current as HTMLDivElement); 
+        const handleResize = () => {
+            const {width, height} = container.getBoundingClientRect(); 
+            setContainerDim({width: Math.min(width, height), height: Math.min(width, height)})
+        }
+
+        const observer = new ResizeObserver(handleResize); 
+        observer.observe(container); 
+
+        return () => observer.disconnect()
+    }, [containerDim]); 
+
 
     const keys = React.useMemo(() => {
         return notes.map((note, i) => {
             const isAccidental = note.key.includes("#");
             let isPressed = false; 
+            const {width, height} = containerDim; 
+
             const noteWidth = 48
             const accidentalWidth = noteWidth / 1.25
 
@@ -92,7 +111,7 @@ export const VirtualKeyboard = () => {
 
             const keyStyle:React.CSSProperties = {
                 ...colors, 
-                height: isAccidental ? 72 : 128, 
+                height: height / (isAccidental ? 1.75 : 1), 
                 marginLeft: isAccidental ? (-1 * accidentalWidth / 2) : i == 0 ? 0 : -1,
                 marginRight: isAccidental ? (-1 * accidentalWidth / 2) : -1,
                 zIndex: isAccidental ? 1 : 0,
@@ -102,10 +121,10 @@ export const VirtualKeyboard = () => {
 
             return <Typography key={i} style={{...styles.key, ...keyStyle}}>{note.key}{note.octave}</Typography>
         }); 
-    }, [activeNotes]); 
+    }, [activeNotes, containerDim]); 
 
     return (
-        <Box style={styles.container}>
+        <Box ref={containerRef} style={{...styles.container, ...props.style}}>
             {/* keyboard */}
             <Box style={styles.piano}>
                 {keys}
@@ -120,7 +139,7 @@ const styles:StyleSheet = {
     }, 
 
     piano: {
-        display: 'flex', overflow: 'scroll'
+        position: "relative", display: 'flex', overflow: 'scroll', scrollbarWidth: 'none'
     }, 
     
     key: {

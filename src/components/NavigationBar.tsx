@@ -9,7 +9,7 @@ export type NavigationOption = {
 export const NavigationBar = (props: {options: NavigationOption[], curPageI: number, setCurPageI: (i: number) => void}) => {
     return (
         <Box style={styles.navBar}>
-            <Typography level="h4">midi-assist</Typography>
+            <Typography level="h2">midi-assist</Typography>
             <Box style={styles.navOptions}>
                 {props.options.map((option, optionI) => (
                     <Button variant={props.curPageI === optionI ? "solid" : "outlined"} onClick={() => props.setCurPageI(optionI)} key={option.label}>{option.label}</Button>
@@ -25,7 +25,7 @@ const styles:StyleSheet = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 4,
+        padding: 16,
     }, 
     navOptions: {
         display: 'flex',

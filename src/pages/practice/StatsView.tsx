@@ -5,14 +5,18 @@ import { Box, Button, Checkbox, Input, Typography } from "@mui/joy";
 
 
 export const StatsView = (props: {style?:React.CSSProperties}) => {
-    const [tempoData, setTempoData]         = React.useState({min: 0, max: 0, avg: 0, interval: 4});
-    const [velocityData, setVelocityData]   = React.useState({min: 0, max: 0, avg: 0, interval: 4});
-    const [metroData, setMetroData]         = React.useState({playing: false, tempo: 80, bpm: 4});
+    const [tempoCaptureRate, setTempoCaptureRate] = React.useState(0); 
+    const [tempoCapture, setTempoCapture] = React.useState();
+    
+    const tempoData = React.useMemo(() => {
+
+    }, [])
+
     
     return (
         <ItemPane style={{...props.style, ...styles.container}}>
 
-            <Box>
+            {/* <Box>
                 <Typography>Tempo</Typography>
                 <Button>Reset</Button>
             </Box>
@@ -20,7 +24,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
                 <Typography>Minimum</Typography>        <Typography>{tempoData.min}</Typography>
                 <Typography>Maximum</Typography>        <Typography>{tempoData.max}</Typography>
                 <Typography>Average</Typography>        <Typography>{tempoData.avg}</Typography>
-                <Typography>Note Interval</Typography>  <Input type="number" value={tempoData.interval}></Input>
+                <Typography>Interval (# notes)</Typography>  <Input type="number" value={tempoData.interval}></Input>
             </Box>
 
             <Box>
@@ -31,7 +35,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
                 <Typography>Minimum</Typography>        <Typography>{velocityData.min}</Typography>
                 <Typography>Maximum</Typography>        <Typography>{velocityData.max}</Typography>
                 <Typography>Average</Typography>        <Typography>{velocityData.avg}</Typography>
-                <Typography>Note Interval</Typography>  <Input type="number" value={velocityData.interval}></Input>
+                <Typography>Interval (s)</Typography>  <Input type="number" value={velocityData.interval}></Input>
             </Box>
 
             <Box>
@@ -42,7 +46,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
                 <Typography>Toggle</Typography>             <Checkbox checked={metroData.playing}/>
                 <Typography>Tempo</Typography>              <Input type="number" value={metroData.tempo} />
                 <Typography>Beats Per Measure</Typography>  <Input type="number" value={metroData.bpm} />
-            </Box>
+            </Box> */}
 
         </ItemPane>
     ); 
@@ -51,13 +55,14 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
 
 const styles:StyleSheet = {    
     header: {
-        display: 'flex'
+        display: 'flex', 
     }, 
     container: {
-        display: 'grid', gridTemplateColumns: 'auto auto', gridTemplateRows: 'repeat(auto-fill, 1fr)', overflowY: 'scroll', height: '100%',
+        display: 'grid', gridTemplateColumns: 'auto auto', gridTemplateRows: 'repeat(auto-fill, 1fr)', overflowY: 'scroll',
         gap: 8, 
         rowGap: 16,
-        padding: 8
+        padding: 8, 
+        flex: '1 1 0'
     }, 
     resetButton: {
         marginLeft: 'auto'

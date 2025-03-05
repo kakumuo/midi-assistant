@@ -2,13 +2,6 @@ import { ChordType, InstrumentNote, IntervalType } from ".";
 import {Chord}  from 'tonal'
 
 
-// // ex: root: D#, quality: Major 2nd, intervals:2 => (D# -> F) 
-// export type ChordData = {
-//     root:string,
-//     quality:undefined | IntervalType | ChordType, 
-//     intervals:number[],
-// }
-
 export const identifyChord = (notesSorted:InstrumentNote[]) => {
     let res = ""; 
     
@@ -44,7 +37,10 @@ export const identifyChord = (notesSorted:InstrumentNote[]) => {
 
         res = `${root.key} ${targetInterval}`
     }else if(noteSet.size >= 3 && noteSet.size <= 7) {
-        res = Chord.detect(notesSorted.map(n => n.key), {assumePerfectFifth: true})[0]
+        res = Chord.detect(notesSorted.map(n => n.key), {assumePerfectFifth: true}).join( " or "); 
+        if(res === "") {
+            res = `${notesSorted[0].key}${notesSorted[0].octave} n.c`
+        }
     }
 
     return res; 

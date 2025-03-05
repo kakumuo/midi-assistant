@@ -5,14 +5,22 @@ import { useActiveNotes } from "../../util/midi/InputManager";
 import { noteDataMap } from "../../util/midi";
 import { ItemPane } from ".";
 import { StyleSheet } from "../../util";
+import { ScaleDisplay } from "../../components/midi/ScaleDisplay";
+import { Chip } from "@mui/material";
+import Color from "colorjs.io";
 
 
 const styles:StyleSheet = {
     container: {
-        display: 'grid', gridTemplateColumns: 'auto', gridTemplateRows: 'repeat(auto-fill, 1fr)', textAlign: 'center'
+        textAlign: 'center',
+        display: 'flex', 
+        flexDirection: 'column',
+        flex: '1 1', 
+        padding: 8,
     }, 
-    main: {
-        display: 'flex', justifySelf: 'center', gap: 8
+    notelist: {
+        display: 'flex', justifySelf: 'center', gap: 8, 
+        justifyContent: 'center'
     }
 }
 
@@ -34,14 +42,19 @@ export const ChordView = (props:{style?:React.CSSProperties}) => {
     return (
         <ItemPane style={{...props.style, ...styles.container}}>
             <Typography level="h1">{displayText}</Typography>
-            <Box style={styles.main}>
-                {notesSorted.map((note) => (
-                    <Typography key={note.key + note.octave} level="body-xs" style={{ color: noteDataMap[note.key].color, fontWeight: 'bold' }}>
-                        {`${note.key}${note.octave}`}
-                    </Typography>
-                ))}
+            <Box style={styles.notelist}>
+                {notesSorted.map((note) => <Chip 
+                    key={note.key + note.octave} 
+                    label={`${note.key}${note.octave}`} 
+                    style={{
+                        color: new Color(noteDataMap[note.key].color).darken(.5) + "", 
+                        backgroundColor: noteDataMap[note.key].color, 
+                        fontWeight: 'bold', 
+                        border: 'solid 2px'
+                    }} 
+                />)}
             </Box>
-            <Typography level="body-xs">Sustain: {sustain ? "On" : "Off"}</Typography>
+            <ScaleDisplay style={{width: '100%', height: 300, marginTop: 'auto'}} />
         </ItemPane>
     );
 }

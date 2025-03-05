@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Button, Typography } from "@mui/joy";
+import { Box, Button, colors, Dropdown, IconButton, ListDivider, Menu, MenuButton, MenuItem, Typography } from "@mui/joy";
 import { StyleSheet } from "../../util";
+import { LockClockOutlined, MoreTime, PlusOne, Timer, Timer10, Timer3SelectSharp, TimerOutlined } from "@mui/icons-material";
+import { duration } from "@mui/material";
+import Color from "colorjs.io";
 
 const styles:StyleSheet = {
     container: {
         marginLeft: 'auto', 
-        width: 200
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-evenly', 
+        gap: 8
     }
 }
 
@@ -16,32 +22,101 @@ const enum IndicatorState {
 const SessionDurationIndicator = () => {
     const [duration, setDuration] = React.useState(0);
     const [paused, setPaused] = React.useState(false); 
-    const [durationInterval, setDurationInterval] = React.useState<NodeJS.Timeout | undefined>(); 
     const [indicatorState, setIndiciatorState] = React.useState<IndicatorState>(IndicatorState.DURATION); 
+    const [timerTimeout, setTimerTimeout] = React.useState<NodeJS.Timeout | undefined>(); 
+    const [timerRemainingMax, setTimerRemainingMax] = React.useState(0); 
+    const [timerRemaining, setTimerRemaining] = React.useState(0); 
 
-    const style:React.CSSProperties = {
-        backgroundColor: paused ? 'gray' : 'Highlight'
-    }
+    const style = React.useMemo<React.CSSProperties>(() => {
+        const progress = (timerRemaining / timerRemainingMax) * 100;
+        let background = ""; 
 
+        const isLow = timerRemaining / timerRemainingMax < .3;
+        const targetColor = paused ? 'gray' : isLow ? 'red' : 'green'
+        const bkgColor = new Color(targetColor).lighten(.2); 
+        
+        if(indicatorState == IndicatorState.DURATION)
+            background = paused ? 'lightgray' : 'Highlight'
+        else {
+            // FIXME: gradient stops half way
+            background = `linear-gradient(to left, ${targetColor} ${progress}%, ${bkgColor} ${progress}%)`;
+        }
+        
+        return {
+            background,
+            width: 200, 
+            transition: 'background-color background .2s'
+        };
+    }, [timerRemaining, timerRemainingMax, paused]);
+    
+   const handleTimerIncrease = (dur:number) => {
+        setIndiciatorState(IndicatorState.TIMER); 
+
+        const timeout = setTimeout(() => {
+            setIndiciatorState(IndicatorState.DURATION); 
+            setTimerTimeout(undefined);            
+        }, (timerRemaining + dur) * 1000); 
+
+        setTimerRemaining(t => t + dur); 
+        setTimerRemainingMax(timerRemaining + dur); 
+
+        setTimerTimeout(timeout); 
+
+        return () => {
+            if(!timerTimeout) return; 
+            clearTimeout(timerTimeout); 
+            setTimerTimeout(undefined); 
+        }
+   }
+
+   const handleReset = () => {
+        if(indicatorState == IndicatorState.DURATION) setDuration(0); 
+        else {
+            setIndiciatorState(IndicatorState.DURATION); 
+            setTimerRemaining(0); 
+            setTimerRemainingMax(0); 
+            clearTimeout(timerTimeout); 
+            setTimerTimeout(undefined); 
+        }
+   }
+
+    React.useEffect(() => {
+        let interval = setInterval(() => {
+            if(paused) return; 
+
+            if(indicatorState == IndicatorState.TIMER)
+                setTimerRemaining(t => t - 1); 
+            setDuration(d => d + 1); 
+
+        }, 1000); 
+        return () => clearInterval(interval); 
+    }, [duration, paused, indicatorState]); 
+
+    
     const displayText = React.useMemo(() => {
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        const seconds = duration % 60;
+        const target = indicatorState == IndicatorState.DURATION ? duration : timerRemaining; 
+
+        const hours = Math.floor(target / 3600);
+        const minutes = Math.floor((target % 3600) / 60);
+        const seconds = target % 60;
         let result = '';
         if (hours > 0) result += `${hours}h `;
         if (minutes > 0) result += `${minutes}m `;
         result += `${seconds}s`;
-        return result;
-    }, [duration])
+        return (indicatorState == IndicatorState.TIMER ? "Timer: " : "Duraiton: ") + result;
+    }, [duration, timerRemaining]); 
      
-    React.useEffect(() => {
-        let interval = setInterval(() => !paused && setDuration(duration + 1), 1000); 
-        setDurationInterval(interval); 
-        return () => clearInterval(interval); 
-    }, [duration, paused]); 
 
     return (
-        <Button onClick={() => setPaused(p => !p)} style={{...styles.container, ...style}}>Duration: {displayText}</Button>
+        <Box style={styles.container}>
+            <Button onClick={() => setPaused(p => !p)} onDoubleClick={handleReset} style={style} >{displayText}</Button>
+            <Dropdown>
+                <MenuButton>{indicatorState == IndicatorState.DURATION ? <TimerOutlined /> : <MoreTime />}</MenuButton>
+                <Menu onChange={(e) => console.log(e)}>
+                    {[.5, 5, 10, 15, 20].map(n => <MenuItem key={n} onClick={() => handleTimerIncrease(n * 60)}>{n} minutes</MenuItem>)}
+                </Menu>
+            </Dropdown>
+        </Box>
     );
 };
 

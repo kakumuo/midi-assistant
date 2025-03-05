@@ -4,6 +4,7 @@ import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEve
 import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputManager";
 import { ItemPane } from ".";
 import { StyleSheet } from "../../util";
+import { ScaleDisplay } from "../../components/midi/ScaleDisplay";
 
 const styles:StyleSheet = {
     container: {display: 'grid', gridTemplateRows: 'auto 1fr auto', gridTemplateColumns: 'auto', gap: 8}, 
@@ -42,7 +43,6 @@ export const HistoryView = (props: {style?:React.CSSProperties}) => {
             </Box>
 
             <Box style={styles.main}>
-                {/* Main content */}
             </Box>
 
             <Box style={styles.footer}>

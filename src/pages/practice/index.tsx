@@ -1,17 +1,13 @@
 import { Box, Button, Option, Select, Typography } from "@mui/joy";
-import { formatDurationString, StyleSheet } from "../../util";
+import { StyleSheet } from "../../util";
 import React from "react";
 import { MainPage } from "../../components/MainPage";
-import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEvent, InstrumentNoteKey, noteDataMap } from "../../util/midi";
-import { identifyChord } from "../../util/midi/identifyChord";
-import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputManager";
-import Color from "colorjs.io";
-import { ChordView } from "./ChordView";
-import { HistoryView } from "./HistoryView";
-import { CoFView } from "./CoFView";
-import { StatsView } from "./StatsView";
 import { VirtualKeyboard } from "../../components/VirtualKeyboard";
 import SessionDurationIndicator from "./SessionDuration";
+import { CoFDisplay } from "../../components/midi/CircleOfFifthsDisplay";
+import { ChordView } from "./ChordView";
+import { StatsView } from "./StatsView";
+import { CoFView } from "./CoFView";
 
 const modes = [
     "Major",
@@ -59,15 +55,14 @@ export const PracticePage = () => {
             <SessionDurationIndicator />
         </Box>
 
-        {/* main content */}
         <Box style={styles.mainContent}>
-            <ChordView style={{...styles.pane_tl, width: 'auto'}} />
-            <StatsView style={styles.pane_br} />
-            <HistoryView style={styles.pane_bl} />
-            <CoFView style={styles.pane_tr} />
+            <CoFView />
+            <ChordView />
+            <StatsView />
         </Box>
 
-        {/* <VirtualKeyboard /> */}
+        <VirtualKeyboard style={{height: 150}} />
+
     </MainPage>
 }
 
@@ -81,7 +76,9 @@ const styles:StyleSheet = {
     container: {
         display: 'grid',
         gridTemplateColumns: 'auto', 
-        gridTemplateRows: 'auto 1fr 1fr', 
+        gridTemplateRows: 'auto 1fr auto', 
+        maxHeight: '100%',
+        height: '100%', 
         overflow: 'auto'
     }, 
     page: {
@@ -91,12 +88,13 @@ const styles:StyleSheet = {
     header: {
         display: 'flex',
         flexDirection: 'row',
-        padding: 8
+        padding: 8, 
+        gap: 16,
     }, 
     mainContent: {
-        display: 'grid',
-        gridTemplateColumns: '50% 50%', 
-        gridTemplateRows: 'minmax(auto, 50%) minmax(auto, 50%)',
+        display: 'flex',
+        flexDirection: 'row', 
         gap: 8, 
+        padding: 8
     },
 }
