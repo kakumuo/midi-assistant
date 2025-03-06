@@ -75,7 +75,9 @@ export class InstrumentInputManager {
         const midiNote = data[1];
         let velocity = data[2];
 
-        let note: InstrumentNote ;
+        let note: InstrumentNote = {} as InstrumentNote;
+        let key:InstrumentKey = {} as InstrumentKey; 
+        let isKey:boolean = true; 
         let isPressed: boolean = false;
 
         // process note
@@ -83,45 +85,69 @@ export class InstrumentInputManager {
             note = midiNoteMap[midiNote];
             isPressed = prefix == 144;
             velocity = !isPressed ? 0 : velocity;
-        } else {
-            return; 
+            isKey = false; 
+        }        
+        else if (prefix == 176 && midiNote == 64) {
+            key = InstrumentKey.PEDAL;
+            isPressed = velocity > 0;
+            velocity = 0;
+        } else if (prefix == 176 && midiNote == 72) {
+            key = InstrumentKey.SUS_BUTTON;
+            isPressed = velocity == 116;
+            velocity = 0;
+        } else if (prefix == 224) {
+            key = velocity > 64 ? InstrumentKey.NOTE_MOD_UP : InstrumentKey.NOTE_MOD_DOWN;
+            isPressed = true;
         }
-        
-        // else if (prefix == 176 && midiNote == 64) {
-        //     key = InstrumentKey.PEDAL;
-        //     isPressed = velocity > 0;
-        //     velocity = 0;
-        // } else if (prefix == 176 && midiNote == 72) {
-        //     key = InstrumentKey.SUS_BUTTON;
-        //     isPressed = velocity == 116;
-        //     velocity = 0;
-        // } else if (prefix == 224) {
-        //     key = velocity > 64 ? InstrumentKey.NOTE_MOD_UP : InstrumentKey.NOTE_MOD_DOWN;
-        //     isPressed = true;
-        // }
 
         const midiTarget = e.target as WebMidi.MIDIInput; 
-        if(isPressed)
-            this.activeNotesMap[midiTarget.id].add(note); 
-        else
-            this.activeNotesMap[midiTarget.id].delete(note); 
+        if(!isKey) {
+            if(isPressed)
+                this.activeNotesMap[midiTarget.id].add(note); 
+            else
+                this.activeNotesMap[midiTarget.id].delete(note); 
+    
+            this.normalizeInputs(); 
 
-        this.normalizeInputs(); 
+            this.dispatchEvent(InstrumentEventType.NOTE, {
+                isPressed, 
+                note, 
+                source: midiTarget.id, 
+                type: InstrumentEventType.NOTE, 
+                velocity
+            } as InstrumentNoteEvent); 
+        } else {
+            this.dispatchEvent(InstrumentEventType.KEY, {
+                isPressed, 
+                key, 
+                source: midiTarget.id, 
+                type: InstrumentEventType.KEY, 
+                velocity
+            } as InstrumentKeyEvent); 
+        }
     }
 
-    private handleKBDInput(down:boolean, e:globalThis.KeyboardEvent) {
-        if(!kbdNoteMap.hasOwnProperty(e.key)) return; 
+    private handleKBDInput(isPressed:boolean, e:globalThis.KeyboardEvent) {
+        if(!kbdNoteMap.hasOwnProperty(e.key) || e.repeat) return; 
 
         e.preventDefault(); 
 
-        const target = kbdNoteMap[e.key] as InstrumentNote; 
-        if(down){
-            this.activeNotesMap['kbd'].add(target); 
+        const note = kbdNoteMap[e.key] as InstrumentNote; 
+        if(isPressed){
+            this.activeNotesMap['kbd'].add(note); 
         }else {
-            this.activeNotesMap['kbd'].delete(target); 
+            this.activeNotesMap['kbd'].delete(note); 
         }
 
         this.normalizeInputs(); 
+
+        this.dispatchEvent(InstrumentEventType.NOTE, {
+            isPressed, 
+            note, 
+            source: 'kbd', 
+            type: InstrumentEventType.NOTE, 
+            velocity: 64
+        } as InstrumentNoteEvent); 
     }
 
 
@@ -157,26 +183,26 @@ export class InstrumentInputManager {
             // console.log(res)
         }
 
-        // identify changed notes and dispatch 
-        for(const prev of prevSet){
-            if(!this.activeNotes.has(prev)) this.dispatchEvent(InstrumentEventType.NOTE, {
-                source: 'kbd', //TODO: add detection for different sources
-                type: InstrumentEventType.NOTE, 
-                isPressed: false, 
-                note: prev, 
-                velocity: 64 //TODO: pass velocity into the note set
-            } as InstrumentNoteEvent); 
-        }
+        // // identify changed notes and dispatch 
+        // for(const prev of prevSet){
+        //     if(!this.activeNotes.has(prev)) this.dispatchEvent(InstrumentEventType.NOTE, {
+        //         source: 'kbd', //TODO: add detection for different sources
+        //         type: InstrumentEventType.NOTE, 
+        //         isPressed: false, 
+        //         note: prev, 
+        //         velocity: 64 //TODO: pass velocity into the note set
+        //     } as InstrumentNoteEvent); 
+        // }
 
-        for(const next of this.activeNotes){
-            if(!prevSet.has(next))this.dispatchEvent(InstrumentEventType.NOTE, {
-                source: 'kbd', //TODO: add detection for different sources
-                type: InstrumentEventType.NOTE, 
-                isPressed: true, 
-                note: next, 
-                velocity: 64 //TODO: pass velocity into the note set
-            } as InstrumentNoteEvent); 
-        }
+        // for(const next of this.activeNotes){
+        //     if(!prevSet.has(next))this.dispatchEvent(InstrumentEventType.NOTE, {
+        //         source: 'kbd', //TODO: add detection for different sources
+        //         type: InstrumentEventType.NOTE, 
+        //         isPressed: true, 
+        //         note: next, 
+        //         velocity: 64 //TODO: pass velocity into the note set
+        //     } as InstrumentNoteEvent); 
+        // }
 
     }
 

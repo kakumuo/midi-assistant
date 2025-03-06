@@ -1,77 +1,128 @@
 import React from "react";
 import { ItemPane } from ".";
 import { StyleSheet } from "../../util";
-import { Box, Button, Checkbox, Input, Typography } from "@mui/joy";
+import { Box, Divider, IconButton, Typography } from "@mui/joy";
+import { PlayArrowOutlined, RefreshOutlined } from "@mui/icons-material";
+import { InstrumentInputContext } from "../../util/midi/InputManager";
+import { InstrumentEventType, InstrumentEvent, InstrumentNoteEvent } from "../../util/midi";
 
-
+const BUFFER_SIZE = 15; 
 export const StatsView = (props: {style?:React.CSSProperties}) => {
-    const [tempoCaptureRate, setTempoCaptureRate] = React.useState(0); 
-    const [tempoCapture, setTempoCapture] = React.useState();
-    
+    const [notesBuffer, setNotesBuffer] = React.useState<{timing:number, velocity:number}[]>([]); 
+    const {inputManager} = React.useContext(InstrumentInputContext); 
+
+    React.useEffect(() => {
+        if(!inputManager) return; 
+
+        const handleNoteChange = (event:InstrumentEvent) => {
+            const e = event as InstrumentNoteEvent; 
+            setNotesBuffer(p => [...p, {timing: Date.now(), velocity: event.velocity}]);
+        }; 
+
+        inputManager.addListener(InstrumentEventType.NOTE, handleNoteChange); 
+
+        return () => {
+            inputManager.removeListener(InstrumentEventType.NOTE, handleNoteChange); 
+        }
+    }, [inputManager]); 
+
     const tempoData = React.useMemo(() => {
+        return {
+            Min: 0, 
+            Max: 0, 
+            Avg: 0
+        }
+    }, [notesBuffer])
 
-    }, [])
 
-    
     return (
         <ItemPane style={{...props.style, ...styles.container}}>
-
-            {/* <Box>
-                <Typography>Tempo</Typography>
-                <Button>Reset</Button>
-            </Box>
-            <Box style={styles.section}>
-                <Typography>Minimum</Typography>        <Typography>{tempoData.min}</Typography>
-                <Typography>Maximum</Typography>        <Typography>{tempoData.max}</Typography>
-                <Typography>Average</Typography>        <Typography>{tempoData.avg}</Typography>
-                <Typography>Interval (# notes)</Typography>  <Input type="number" value={tempoData.interval}></Input>
+            <Box style={styles.header}>
+                <Typography>Performance</Typography>
+                <IconButton><RefreshOutlined /></IconButton>
             </Box>
 
-            <Box>
-                <Typography>Velocity</Typography>
-                <Button>Reset</Button>
-            </Box>
-            <Box style={styles.section}>
-                <Typography>Minimum</Typography>        <Typography>{velocityData.min}</Typography>
-                <Typography>Maximum</Typography>        <Typography>{velocityData.max}</Typography>
-                <Typography>Average</Typography>        <Typography>{velocityData.avg}</Typography>
-                <Typography>Interval (s)</Typography>  <Input type="number" value={velocityData.interval}></Input>
-            </Box>
+            <StatDisplay title="Tempo" headerAside={<IconButton children={<RefreshOutlined />}/>}>
+                <Box style={styles.threeStatGroup}>
+                    {Object.entries(tempoData).map( ([key, val], i) => {
+                        return (<>
+                            {i != 0 && <Divider orientation="vertical" />}
+                            <Box style={styles.statGroup}>
+                                <Typography level="body-lg">{key}</Typography>
+                                <Typography>{val}</Typography>
+                            </Box>
+                        </>)
+                    })}
+                </Box>
+                <Divider orientation="vertical" />
+            </StatDisplay>
 
-            <Box>
-                <Typography>Metrinome</Typography>
-                <Button>Reset</Button>
-            </Box>
-            <Box style={styles.section}>
-                <Typography>Toggle</Typography>             <Checkbox checked={metroData.playing}/>
-                <Typography>Tempo</Typography>              <Input type="number" value={metroData.tempo} />
-                <Typography>Beats Per Measure</Typography>  <Input type="number" value={metroData.bpm} />
-            </Box> */}
+            <StatDisplay title="Velocity" headerAside={<IconButton children={<RefreshOutlined />}/>}>
+                <Box>
+                    Something
+                </Box>
+            </StatDisplay>
 
+            <StatDisplay title="Metronome" headerAside={<IconButton children={<PlayArrowOutlined />}/>}>
+                <Box>
+                    Something
+                </Box>
+            </StatDisplay>
         </ItemPane>
     ); 
 } 
 
+export const StatDisplay = (props:{title:string, headerAside: React.JSX.Element, children?:any}) => {
+    return <Box style={styles.statDisplay}>
+        <Box style={styles.statDisplayHeader}>
+            <Typography level="h4">{props.title}</Typography>
+            {props.headerAside}
+        </Box>
+
+        {props.children}
+    </Box>
+}
 
 const styles:StyleSheet = {    
+    container: {
+        display: 'grid', 
+        gridTemplateColumns: 'auto', 
+        gridTemplateRows: 'auto 1fr 1fr 1fr', 
+        flex: '1 1 0',
+        backgroundColor: 'lightgray', 
+        gap: 16, 
+        padding: 8
+    }, 
     header: {
         display: 'flex', 
+        flexDirection: 'row', 
+        justifyContent: 'space-between'
     }, 
-    container: {
-        display: 'grid', gridTemplateColumns: 'auto auto', gridTemplateRows: 'repeat(auto-fill, 1fr)', overflowY: 'scroll',
-        gap: 8, 
-        rowGap: 16,
+    statDisplay: {
+        backgroundColor: 'white', 
+        marginLeft: 8, marginRight: 8, 
         padding: 8, 
-        flex: '1 1 0'
-    }, 
-    resetButton: {
-        marginLeft: 'auto'
-    }, 
-    section: {
+        borderRadius: 8, 
         display: 'grid', 
-        gridTemplateColumns: '2fr 1fr', 
-        gridTemplateRows: 'repeat(auto-fill, 1fr)', 
-        gap: 8, 
-        rowGap: 8,
+        gridTemplateColumns: 'auto', 
+        gridTemplateRows: 'auto 1fr',
+    }, 
+    statDisplayHeader: {
+        display: 'flex', 
+        justifyContent: 'space-between'
+    }, 
+
+    threeStatGroup:{
+        display: 'flex', 
+        justifyItems: 'center', 
+        justifyContent: 'space-evenly',
+        alignSelf: 'center'
+    }, 
+    statGroup: {
+        display: 'grid', 
+        gridTemplateColumns: 'auto', 
+        gridTemplateRows: '1fr 1fr', 
+        alignItems: 'center', 
+        justifyItems: 'center'
     }
 }

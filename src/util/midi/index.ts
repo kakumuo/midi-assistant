@@ -92,6 +92,8 @@ export const enum InstrumentEventType {
 }
 
 export interface InstrumentEvent {
+    isPressed:boolean, 
+    velocity:number, 
     source:string, 
     type:InstrumentEventType,
 }
@@ -101,12 +103,10 @@ export interface InstrumentStateEvent extends InstrumentEvent {
 }
 
 export interface InstrumentKeyEvent extends InstrumentEvent  {
-    connected:boolean; 
+    key:InstrumentKey, 
 }
 
 export interface InstrumentNoteEvent extends InstrumentEvent {
-    velocity:number, 
-    isPressed:boolean, 
     note: InstrumentNote
 }
 

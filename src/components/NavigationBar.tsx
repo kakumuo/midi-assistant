@@ -16,7 +16,7 @@ export const NavigationBar = (props: {options: NavigationOption[], curPageI: num
                 ))}
             </Box>
         </Box>
-    )
+    ); 
 }
 
 const styles:StyleSheet = {

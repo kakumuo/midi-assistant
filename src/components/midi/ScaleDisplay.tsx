@@ -54,8 +54,22 @@ export const ScaleDisplay = (props:{style?:React.CSSProperties}) => {
         let j = 0; 
 
         const noteMap:InstrumentNote['key'][] = ['C','D','E','F','G','A','B','C','D','E','F','G']; 
+        const sortedNotes = [...activeNotes].sort((a, b) => {
+            const aBaseNote = a.key.replace('#', '') as InstrumentNote['key'];
+            const bBaseNote = b.key.replace('#', '') as InstrumentNote['key'];
+            const aIndex = noteMap.indexOf(aBaseNote);
+            const bIndex = noteMap.indexOf(bBaseNote);
+            
+            // If octave information is available, use it
+            if (a.octave !== undefined && b.octave !== undefined) {
+                if (a.octave !== b.octave) return a.octave - b.octave;
+            }
+            
+            // Otherwise sort by position in the noteMap
+            return aIndex - bIndex;
+        });
 
-        for(const note of activeNotes){
+        for(const note of sortedNotes){
             // Get the base note without any accidentals
             const baseNote = note.key.replace('#', '') as InstrumentNote['key'];
             // Check if this note is already being pressed by looking at previous notes in activeNotes
