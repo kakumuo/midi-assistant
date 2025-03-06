@@ -146,7 +146,7 @@ export class InstrumentInputManager {
             note, 
             source: 'kbd', 
             type: InstrumentEventType.NOTE, 
-            velocity: 64
+            velocity: isPressed ? 64 : 0
         } as InstrumentNoteEvent); 
     }
 

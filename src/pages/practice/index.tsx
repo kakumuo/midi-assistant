@@ -46,12 +46,12 @@ export const PracticePage = () => {
     return <MainPage style={styles.container}>
         {/* Header */}
         <Box style={styles.header}>
-            <Select value={scale} onChange={(e) => e && e.target && setScale((e.target as any).textContent)}>
+            {/* <Select value={scale} onChange={(e) => e && e.target && setScale((e.target as any).textContent)}>
                 {scales.map(s => <Option key={s} value={s} label={s} children={s} />)}
             </Select>
             <Select value={mode} onChange={(e) => e && e.target && setMode((e.target as any).textContent)}>
                 {modes.map(m => <Option key={m} value={m} label={m} children={m} />)}
-            </Select>
+            </Select> */}
             <SessionDurationIndicator />
         </Box>
 
@@ -67,7 +67,7 @@ export const PracticePage = () => {
 }
 
 export const ItemPane = (props:{style?:React.CSSProperties, ref?:React.Ref<any>, children?: React.ReactNode}) => {
-    return <Box ref={props.ref} style={{...props.style, border: 'solid 1px black', borderRadius: 4}}>
+    return <Box ref={props.ref} style={{...props.style, borderRadius: 4}}>
         {props.children}
     </Box>
 }
@@ -79,7 +79,6 @@ const styles:StyleSheet = {
         gridTemplateRows: 'auto 1fr auto', 
         maxHeight: '100%',
         height: '100%', 
-        overflow: 'auto'
     }, 
     page: {
         border: 'solid 1px red',

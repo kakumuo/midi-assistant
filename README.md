@@ -1,9 +1,9 @@
 # Overview
 A midi visualizer for piano
+![alt text](./concept//sc1.png)
 
 ### Inspriation 
 - Kepiano: https://x.com/kepano/status/1884672012292923580/video/1
-
 
 ## Dependencies
 - React 
@@ -13,21 +13,31 @@ A midi visualizer for piano
 
 # Todo
 ### Fixes
+- Practice: 
+    - Accurate detection of tempo
+    - Get velocity of multiple notes being held simultaneously
+    - Add lines for notes outside of bar in chord viewer or implement existing library
 ### Future
 - General
     - Onscreen Virtual Keyboard (Controllable on PC Keyboard)
     - Save data to browser/server
-    - Profile System
     - Use Notes type/class from 'tonal' library
 - Practice
-    - Session Duration: Pause, Reset, Start Countdown Timer
-    - Chord Viewer
-    - Circle of Fifths Viewer
-    - Metrinome
-    - Basic/Intermediate/Advanced Panel View (Tap/Click to Change Size)
-    - Long Press to reset individual panels
+    - ~~Session Duration: Pause, Reset, Start Countdown Timer~~ [DONE]
+    - ~~Chord Viewer~~ [DONE]
+    - ~~Circle of Fifths Viewer~~ [DONE]
+    - ~~Metrinome~~ [DONE]
+    - ~~Basic/Intermediate/Advanced Panel View (Tap/Click to Change Size)~~ [IGNORE]
+    - ~~Long Press to reset individual panels~~ [IGNORE]
+- Drills: 
+    - Create, play, edit and delete drills
+    - Display stats at the end of the exercise
+- SightReading: 
+    - Sightreading trainer
 - Settings
     - View Connected Midi Device
     - Select Target Midi Device
     - UI Themeing
 ### Brainstorming
+- Display when Midi Device is connected or removed
+- iOS Support through WebMidi App

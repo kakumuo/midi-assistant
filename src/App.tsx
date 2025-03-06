@@ -12,7 +12,7 @@ export const App = () => {
 
     const navOptions:NavigationOption[] = [
         {label: "Practice", target: <PracticePage />},
-        {label: "Settings", target: <Box style={styles.page}>Settings Page</Box>}
+        // {label: "Settings", target: <Box style={styles.page}>Settings Page</Box>}
     ] 
 
     return(

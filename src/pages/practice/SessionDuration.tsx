@@ -103,7 +103,7 @@ const SessionDurationIndicator = () => {
         if (hours > 0) result += `${hours}h `;
         if (minutes > 0) result += `${minutes}m `;
         result += `${seconds}s`;
-        return (indicatorState == IndicatorState.TIMER ? "Timer: " : "Duraiton: ") + result;
+        return (indicatorState == IndicatorState.TIMER ? "Timer: " : "Duration: ") + result;
     }, [duration, timerRemaining]); 
      
 
