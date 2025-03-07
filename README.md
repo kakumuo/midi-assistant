@@ -17,6 +17,7 @@ A midi visualizer for piano
     - Accurate detection of tempo
     - Get velocity of multiple notes being held simultaneously
     - Add lines for notes outside of bar in chord viewer or implement existing library
+    - Clef doesnt appear on page refresh/load
 ### Future
 - General
     - Onscreen Virtual Keyboard (Controllable on PC Keyboard)
@@ -40,4 +41,4 @@ A midi visualizer for piano
     - UI Themeing
 ### Brainstorming
 - Display when Midi Device is connected or removed
-- iOS Support through WebMidi App
+- ~~iOS Support through WebMidi App~~ [DONE]

@@ -49,8 +49,16 @@ export class InstrumentInputManager {
                 access.addEventListener('statechange', (e) => this.handleStateChange(e)); 
             
                 access.inputs.forEach(input => {
+                    if(!input.manufacturer) return; 
+
                     input.addEventListener('midimessage', (e) => this.handleMIDIInput(e)); 
-                    this.activeNotesMap[input.id] = new Set(); 
+                    
+                    /**
+                     *  WebMidiBrowser for iOS receives events without target and id
+                     *  TODO: find a way to get source id from mulitple devices on iOS through WebMidiBrowser
+                     */
+                    // this.activeNotesMap[input.id] = new Set(); 
+                    this.activeNotesMap['midi'] = new Set(); 
                 });
             });
     }
@@ -67,8 +75,6 @@ export class InstrumentInputManager {
     }
 
     private handleMIDIInput(e:WebMidi.MIDIMessageEvent) {
-        // console.log("MIDI Input: ", e);
-        
         const data = e.data;
 
         const prefix = data[0];
@@ -100,19 +106,21 @@ export class InstrumentInputManager {
             isPressed = true;
         }
 
-        const midiTarget = e.target as WebMidi.MIDIInput; 
+        /**
+         * need to use 'midi' instead of target.id @see initializeMIDI
+         */
         if(!isKey) {
             if(isPressed)
-                this.activeNotesMap[midiTarget.id].add(note); 
+                this.activeNotesMap['midi'].add(note); 
             else
-                this.activeNotesMap[midiTarget.id].delete(note); 
+                this.activeNotesMap['midi'].delete(note); 
     
             this.normalizeInputs(); 
 
             this.dispatchEvent(InstrumentEventType.NOTE, {
                 isPressed, 
                 note, 
-                source: midiTarget.id, 
+                source: 'midi', 
                 type: InstrumentEventType.NOTE, 
                 velocity
             } as InstrumentNoteEvent); 
@@ -120,7 +128,7 @@ export class InstrumentInputManager {
             this.dispatchEvent(InstrumentEventType.KEY, {
                 isPressed, 
                 key, 
-                source: midiTarget.id, 
+                source: 'midi', 
                 type: InstrumentEventType.KEY, 
                 velocity
             } as InstrumentKeyEvent); 
@@ -176,34 +184,6 @@ export class InstrumentInputManager {
                 this.activeNotes.add(note); 
             }
         }
-
-        if(!this.setEq(prevSet, this.activeNotes)){
-            const res:string[] = []
-            this.activeNotes.forEach(n => res.push(`${n.key}${n.octave}`))
-            // console.log(res)
-        }
-
-        // // identify changed notes and dispatch 
-        // for(const prev of prevSet){
-        //     if(!this.activeNotes.has(prev)) this.dispatchEvent(InstrumentEventType.NOTE, {
-        //         source: 'kbd', //TODO: add detection for different sources
-        //         type: InstrumentEventType.NOTE, 
-        //         isPressed: false, 
-        //         note: prev, 
-        //         velocity: 64 //TODO: pass velocity into the note set
-        //     } as InstrumentNoteEvent); 
-        // }
-
-        // for(const next of this.activeNotes){
-        //     if(!prevSet.has(next))this.dispatchEvent(InstrumentEventType.NOTE, {
-        //         source: 'kbd', //TODO: add detection for different sources
-        //         type: InstrumentEventType.NOTE, 
-        //         isPressed: true, 
-        //         note: next, 
-        //         velocity: 64 //TODO: pass velocity into the note set
-        //     } as InstrumentNoteEvent); 
-        // }
-
     }
 
     addListener(type: InstrumentEventType, listener:(e:InstrumentEvent)=>void){
@@ -220,23 +200,14 @@ export class InstrumentInputManager {
 }
 
 export type InstrumentInputContextData = {
-    inputManager:InstrumentInputManager,
-    hasMIDI:boolean
+    inputManager:InstrumentInputManager
 }
 export const InstrumentInputContext = React.createContext({} as InstrumentInputContextData); 
 export const InstrumentInputProvider = (props: {children:any}) => {
     const [inputManager] = useState(() => new InstrumentInputManager());
-    const [hasMIDI, setHasMIDI] = React.useState(false); 
-
-    // init input devices and listners
-    React.useEffect(() => {
-        navigator.requestMIDIAccess()
-            .then(() => setHasMIDI(true))
-            .catch(() => setHasMIDI(false));
-    }, []);
 
     return (
-        <InstrumentInputContext.Provider value={{hasMIDI, inputManager}}>
+        <InstrumentInputContext.Provider value={{inputManager}}>
             {props.children}
         </InstrumentInputContext.Provider>
     )
