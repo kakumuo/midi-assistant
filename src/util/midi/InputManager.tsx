@@ -1,5 +1,6 @@
 import React, { KeyboardEvent, useState } from "react"
-import { InstrumentEvent, InstrumentEventType, InstrumentKey, InstrumentKeyEvent, InstrumentNote, InstrumentNoteEvent, midiNoteMap } from ".";
+import { InstrumentEvent, InstrumentEventType, InstrumentKey, InstrumentKeyEvent, InstrumentNote, InstrumentNoteEvent, InstrumentNoteKey, midiNoteMap } from ".";
+import { ThreeSixty } from "@mui/icons-material";
 
 
 const kbdNoteMap:{[key:string]: InstrumentNote} = {
@@ -25,14 +26,21 @@ const kbdNoteMap:{[key:string]: InstrumentNote} = {
     "'": {key: "F", octave: 5}
 }
 
+const kbdKeyMap:{[key:string]: InstrumentKey} = {
+    ' ': InstrumentKey.PEDAL
+}
+
 export class InstrumentInputManager {
     private listeners: Record<InstrumentEventType, Set<((note:InstrumentEvent)=>void)>>;
     private activeNotesMap: Record<string, Set<InstrumentNote>>; 
+    private inactiveNotesMap: Record<string, Set<InstrumentNote>>; 
     activeNotes: Set<InstrumentNote>; 
+    private sustain:boolean = false; 
 
     constructor(){
         this.activeNotesMap = {};
         this.activeNotes = new Set(); 
+        this.inactiveNotesMap = {}; 
         this.listeners = {
             key: new Set(), 
             note: new Set(), 
@@ -48,17 +56,18 @@ export class InstrumentInputManager {
             .then(access => {
                 access.addEventListener('statechange', (e) => this.handleStateChange(e)); 
             
+                /**
+                 *  WebMidiBrowser for iOS receives events without target and id
+                 *  TODO: find a way to get source id from mulitple devices on iOS through WebMidiBrowser
+                 */
+                // this.activeNotesMap[input.id] = new Set(); 
+                this.activeNotesMap['midi'] = new Set(); 
+                this.inactiveNotesMap['midi'] = new Set(); 
+
                 access.inputs.forEach(input => {
                     if(!input.manufacturer) return; 
 
                     input.addEventListener('midimessage', (e) => this.handleMIDIInput(e)); 
-                    
-                    /**
-                     *  WebMidiBrowser for iOS receives events without target and id
-                     *  TODO: find a way to get source id from mulitple devices on iOS through WebMidiBrowser
-                     */
-                    // this.activeNotesMap[input.id] = new Set(); 
-                    this.activeNotesMap['midi'] = new Set(); 
                 });
             });
     }
@@ -67,6 +76,7 @@ export class InstrumentInputManager {
         document.addEventListener('keydown', (e) => this.handleKBDInput(true, e)); 
         document.addEventListener('keyup', (e) => this.handleKBDInput(false, e)); 
         this.activeNotesMap['kbd'] = new Set(); 
+        this.inactiveNotesMap['kbd'] = new Set(); 
     }
 
     // TODO: implement
@@ -74,26 +84,67 @@ export class InstrumentInputManager {
         // console.log("State change: ", e); 
     }
 
-    private handleMIDIInput(e:WebMidi.MIDIMessageEvent) {
-        const data = e.data;
+    private handleInput(
+        isPressed: boolean,
+        note: InstrumentNote | null,
+        key: InstrumentKey | null,
+        source: string,
+        velocity: number
+    ) {
+        if (note) {
+            // Handle note input
+            if (isPressed) {
+                note.velocity = velocity;
+                this.activeNotesMap[source].add(note);
+                this.inactiveNotesMap[source].delete(note);
+            } else if (this.sustain) {
+                this.inactiveNotesMap[source].add(note);
+            } else {
+                note.velocity = 0;
+                this.activeNotesMap[source].delete(note);
+            }
 
+            this.normalizeInputs();
+
+            this.dispatchEvent(InstrumentEventType.NOTE, {
+                isPressed,
+                note,
+                source,
+                type: InstrumentEventType.NOTE,
+                velocity
+            } as InstrumentNoteEvent);
+        } else if (key) {
+            // Handle key input
+            if (key === InstrumentKey.PEDAL) {
+                this.setSustain(isPressed);
+            }
+
+            this.dispatchEvent(InstrumentEventType.KEY, {
+                isPressed,
+                key,
+                source,
+                type: InstrumentEventType.KEY,
+                velocity
+            } as InstrumentKeyEvent);
+        }
+    }
+
+    private handleMIDIInput(e: WebMidi.MIDIMessageEvent) {
+        const data = e.data;
         const prefix = data[0];
         const midiNote = data[1];
         let velocity = data[2];
 
-        let note: InstrumentNote = {} as InstrumentNote;
-        let key:InstrumentKey = {} as InstrumentKey; 
-        let isKey:boolean = true; 
+        let note: InstrumentNote | null = null;
+        let key: InstrumentKey | null = null;
         let isPressed: boolean = false;
 
-        // process note
+        // Process note
         if ((prefix == 128 || prefix == 144) && midiNote >= 36 && midiNote <= 96) {
             note = midiNoteMap[midiNote];
             isPressed = prefix == 144;
             velocity = !isPressed ? 0 : velocity;
-            isKey = false; 
-        }        
-        else if (prefix == 176 && midiNote == 64) {
+        } else if (prefix == 176 && midiNote == 64) {
             key = InstrumentKey.PEDAL;
             isPressed = velocity > 0;
             velocity = 0;
@@ -106,83 +157,51 @@ export class InstrumentInputManager {
             isPressed = true;
         }
 
-        /**
-         * need to use 'midi' instead of target.id @see initializeMIDI
-         */
-        if(!isKey) {
-            if(isPressed)
-                this.activeNotesMap['midi'].add(note); 
-            else
-                this.activeNotesMap['midi'].delete(note); 
-    
-            this.normalizeInputs(); 
+        this.handleInput(isPressed, note, key, 'midi', velocity);
+    }
 
-            this.dispatchEvent(InstrumentEventType.NOTE, {
-                isPressed, 
-                note, 
-                source: 'midi', 
-                type: InstrumentEventType.NOTE, 
-                velocity
-            } as InstrumentNoteEvent); 
+    private handleKBDInput(isPressed: boolean, e: globalThis.KeyboardEvent) {
+        if ((!kbdNoteMap.hasOwnProperty(e.key) && !kbdKeyMap.hasOwnProperty(e.key)) || e.repeat) return;
+
+        e.preventDefault();
+
+        let note: InstrumentNote | null = null;
+        let key: InstrumentKey | null = null;
+        let velocity = isPressed ? 64 : 0;
+
+        if (kbdNoteMap.hasOwnProperty(e.key)) {
+            note = kbdNoteMap[e.key];
         } else {
-            this.dispatchEvent(InstrumentEventType.KEY, {
-                isPressed, 
-                key, 
-                source: 'midi', 
-                type: InstrumentEventType.KEY, 
-                velocity
-            } as InstrumentKeyEvent); 
-        }
-    }
-
-    private handleKBDInput(isPressed:boolean, e:globalThis.KeyboardEvent) {
-        if(!kbdNoteMap.hasOwnProperty(e.key) || e.repeat) return; 
-
-        e.preventDefault(); 
-
-        const note = kbdNoteMap[e.key] as InstrumentNote; 
-        if(isPressed){
-            this.activeNotesMap['kbd'].add(note); 
-        }else {
-            this.activeNotesMap['kbd'].delete(note); 
+            key = kbdKeyMap[e.key];
         }
 
-        this.normalizeInputs(); 
-
-        this.dispatchEvent(InstrumentEventType.NOTE, {
-            isPressed, 
-            note, 
-            source: 'kbd', 
-            type: InstrumentEventType.NOTE, 
-            velocity: isPressed ? 64 : 0
-        } as InstrumentNoteEvent); 
+        this.handleInput(isPressed, note, key, 'kbd', velocity);
     }
 
-
-    private setEq(a:Set<InstrumentNote>, b:Set<InstrumentNote>) {
-        if (a.size !== b.size) return false;
-
-        for (const noteA of a) {
-            let found = false;
-            for (const noteB of b) {
-                if (noteA.key === noteB.key && noteA.octave === noteB.octave) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) return false;
-        }
-        return true;
-    }
-
+    
     private normalizeInputs() {
-        const prevSet = new Set(this.activeNotes);
         this.activeNotes.clear();
 
         for(const input in this.activeNotesMap){
             for(const note of this.activeNotesMap[input]){
                 this.activeNotes.add(note); 
             }
+        }
+    }
+
+    private setSustain(sustain:boolean) {
+        if(this.sustain == sustain) return; 
+        this.sustain = sustain; 
+
+        if(!this.sustain) {
+            for(let device in this.inactiveNotesMap) {
+                for(let note of this.inactiveNotesMap[device]){
+                    this.activeNotesMap[device].delete(note); 
+                }
+                this.inactiveNotesMap[device].clear(); 
+            }
+
+            this.normalizeInputs();    
         }
     }
 
@@ -218,14 +237,17 @@ export const useActiveNotes = () => {
     const {inputManager} = React.useContext(InstrumentInputContext); 
 
     React.useEffect(() => {
-        const handleNoteChange = () => {
+        const handleNoteChange = (e:InstrumentEvent) => {
             setActiveNotes(new Set(inputManager.activeNotes));
         };
 
         inputManager.addListener(InstrumentEventType.NOTE, handleNoteChange); 
+        // TODO: only update when the sustain is changed
+        inputManager.addListener(InstrumentEventType.KEY, handleNoteChange); 
 
         return () => {
             inputManager.removeListener(InstrumentEventType.NOTE, handleNoteChange);
+            inputManager.removeListener(InstrumentEventType.KEY, handleNoteChange); 
         }
     }, []); 
 

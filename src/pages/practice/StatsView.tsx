@@ -9,30 +9,34 @@ import Color from "colorjs.io";
 
 const BUFFER_SIZE = 15; 
 const BUFFER_TIMING_THRESH = 2000; // filter everything enterd over 1 second in the past
-export const StatsView = (props: {style?:React.CSSProperties}) => {
+export const StatsView = (props: {style?:React.CSSProperties, className?:string, id?:string}) => {
     const [notesBuffer, setNotesBuffer] = React.useState<{timing:number, velocity:number}[]>([{timing: Date.now(), velocity: 0}]); 
     const [tempoData, setTempoData] = React.useState({Min: Infinity, Max: 0, Avg: 0}); 
     const [velocityData, setVelocityData] = React.useState({Min: Infinity, Max: 0, Avg: 0}); 
     const [timingRefresh, setTimingRefresh] = React.useState(false); 
-    const [curNoteVelocity, setCurNoteVelocity] = React.useState(0); 
+    const [avgVelocity, setAvgVelocity] = React.useState(0); 
     const {inputManager} = React.useContext(InstrumentInputContext); 
 
     React.useEffect(() => {
         if(!inputManager) return; 
 
         const handleNoteChange = (e:InstrumentEvent) => {
-            setCurNoteVelocity(e.velocity); 
+            let avg = 0; 
+            if(inputManager.activeNotes.size > 0)
+                avg = [...inputManager.activeNotes].reduce((acc, cur) => acc + cur.velocity!, 0) / inputManager.activeNotes.size; 
+            setAvgVelocity(avg); 
 
             console.log(e.velocity)
             if(!e.isPressed) return; 
             setNotesBuffer(prev => [...prev, {timing: Date.now(), velocity: e.velocity}]);
-            
         }; 
 
         inputManager.addListener(InstrumentEventType.NOTE, handleNoteChange); 
+        inputManager.addListener(InstrumentEventType.KEY, handleNoteChange)
 
         return () => {
             inputManager.removeListener(InstrumentEventType.NOTE, handleNoteChange);
+            inputManager.removeListener(InstrumentEventType.KEY, handleNoteChange); 
         }
     }, [inputManager]); 
 
@@ -85,7 +89,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
 
     const velocityDisplayStyle = React.useMemo(() => {
         const MAX_VAL = 128; 
-        const percent = 100 * curNoteVelocity / MAX_VAL; 
+        const percent = 100 * avgVelocity / MAX_VAL; 
         const style:React.CSSProperties = {
             border: 'solid', 
             height: '20px', 
@@ -95,7 +99,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
         }
 
         return style; 
-    }, [curNoteVelocity])
+    }, [avgVelocity])
 
     React.useEffect(() => {
          // Handle timing recording
@@ -122,7 +126,7 @@ export const StatsView = (props: {style?:React.CSSProperties}) => {
 
 
     return (
-        <ItemPane style={{...props.style, ...styles.container}}>
+        <ItemPane style={{...props.style}} className={props.className} id={props.id}>
             <Box style={styles.header}>
                 <Typography  level="h4">Performance</Typography>
                 <IconButton><RefreshOutlined onClick={() => {handleResetTempoData(); handleResetVelocityData(); }}/></IconButton>
@@ -266,7 +270,7 @@ const Metronome = () => {
         return beatIcons; 
     }
 
-    const aside = <Box style={{display: 'flex', maxWidth: '40%', alignItems: 'center', gap: 8}}>
+    const aside = <Box style={{display: 'flex', paddingLeft: 16, alignItems: 'center', gap: 8}}>
         {volume == 0 ? <VolumeMuteOutlined /> : <VolumeUpOutlined />}
         <Input type="range" value={volume} onChange={e => handleVolumeChange(Number.parseInt(e.target.value))} />
         <IconButton color={isPlaying ? 'warning' : 'success'} onClick={handlePlayPause} children={isPlaying ? <PauseOutlined /> : <PlayArrowOutlined />}/>
@@ -296,15 +300,6 @@ export const StatDisplay = (props:{title:string, headerAside: React.JSX.Element,
 }
 
 const styles:StyleSheet = {    
-    container: {
-        display: 'grid', 
-        gridTemplateColumns: 'auto', 
-        gridTemplateRows: 'auto 1fr 1fr 1fr', 
-        flex: '1 1 0',
-        backgroundColor: 'lightgray', 
-        gap: 16, 
-        padding: 8
-    }, 
     header: {
         display: 'flex', 
         flexDirection: 'row', 

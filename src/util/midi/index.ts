@@ -1,7 +1,8 @@
 
-export type InstrumentNote = {
-    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"
-    octave: number
+export class InstrumentNote {
+    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = "C"
+    octave: number = 0
+    velocity?: number = 0
 }
 
 export enum InstrumentNoteKey {

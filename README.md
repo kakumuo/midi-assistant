@@ -18,6 +18,10 @@ A midi visualizer for piano
     - Get velocity of multiple notes being held simultaneously
     - Add lines for notes outside of bar in chord viewer or implement existing library
     - Clef doesnt appear on page refresh/load
+    - Stack CoF and scale display over each other when window width < window hieght
+    - Show all notes faded out on scale display under chord, highlight when notes are pressed. Stack like keys on piano. Ignore octaves
+    - Metronome highlights not showing up on iOS
+    - Add Sustain input
 ### Future
 - General
     - Onscreen Virtual Keyboard (Controllable on PC Keyboard)

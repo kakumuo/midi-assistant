@@ -1,0 +1,58 @@
+#practice-maincontent {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px;
+}
+
+#cofview {
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    flex: 2 2 0;
+}
+#chordview {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex: 2 1 0;
+    padding: 8px;
+}
+#statsview {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto 1fr 1fr 1fr;
+    flex: 1 1 0;
+    background-color: lightgray;
+    gap: 16px;
+    padding: 8px;
+}
+
+
+
+@media (max-width: 200vh) {
+    #practice-maincontent {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr auto;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    #cofview, #chordview {
+        grid-column: 1;
+    }
+    
+    #cofview {
+        grid-row: 1;
+    }
+    
+    #chordview {
+        grid-row: 2;
+    }
+    
+    #statsview {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+}
