@@ -6,7 +6,6 @@ import { VirtualKeyboard } from "../../components/VirtualKeyboard";
 import SessionDurationIndicator from "./SessionDuration";
 import { ChordView } from "./ChordView";
 import { StatsView } from "./StatsView";
-import { CoFView } from "./CoFView";
 
 import './style.css'
 
@@ -51,8 +50,8 @@ export const PracticePage = () => {
         </Box>
 
         <Box id="practice-maincontent">
-            <CoFView id="cofview" />
             <ChordView id="chordview"/>
+            {/* <CoFView id="cofview" /> */}
             <StatsView id="statsview" />
         </Box>
 

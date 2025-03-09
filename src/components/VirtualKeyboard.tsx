@@ -4,6 +4,7 @@ import { InstrumentNote, noteDataMap } from "../util/midi";
 import { useActiveNotes } from "../util/midi/InputManager";
 import { StyleSheet } from "../util";
 import Color from "colorjs.io";
+import { useNoteColors } from "../App";
 
 
 type VirtualKey = {
@@ -65,6 +66,7 @@ export const VirtualKeyboard = (props:{style?:React.CSSProperties}) => {
     const [containerDim, setContainerDim] = React.useState({width: 0, height: 0}); 
     const activeNotes = useActiveNotes(); 
     const containerRef = React.useRef<HTMLDivElement>(null); 
+    const {noteColors} = useNoteColors(); 
 
     React.useEffect(() => {
         if(!containerRef.current) return; 
@@ -95,9 +97,9 @@ export const VirtualKeyboard = (props:{style?:React.CSSProperties}) => {
             activeNotes.forEach(n => {if(n.key == note.key && n.octave == note.octave) isPressed = true}); 
 
             if(isPressed) {
-                colors.color = `${new Color(noteDataMap[note.key].color).darken(2)}`; 
+                colors.color = `${new Color(noteColors[note.key]).darken(2)}`; 
                 colors.borderColor = colors.color; 
-                colors.backgroundColor = noteDataMap[note.key].color; 
+                colors.backgroundColor = noteColors[note.key]; 
             }else if (isAccidental) {
                 colors.color = 'white'; 
                 colors.backgroundColor = 'black'; 

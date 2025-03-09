@@ -1,58 +1,27 @@
 #practice-maincontent {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    padding: 8px;
+    display: grid;
+    grid-template-columns: 50% auto;
+    grid-template-rows: 50% auto; 
+    gap: 16px;
+    padding: 16px;
 }
 
 #cofview {
-    display: flex; 
-    align-items: center;
-    justify-content: center;
-    flex: 2 2 0;
+    height: 100%;
 }
 #chordview {
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    flex: 2 1 0;
-    padding: 8px;
 }
 #statsview {
-    display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: auto 1fr 1fr 1fr;
-    flex: 1 1 0;
-    background-color: lightgray;
-    gap: 16px;
-    padding: 8px;
-}
-
-
-
-@media (max-width: 200vh) {
-    #practice-maincontent {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr auto;
-        gap: 8px;
-        padding: 8px;
-    }
-    
-    #cofview, #chordview {
-        grid-column: 1;
-    }
-    
-    #cofview {
-        grid-row: 1;
-    }
-    
-    #chordview {
-        grid-row: 2;
-    }
-    
-    #statsview {
-        grid-column: 2;
-        grid-row: 1 / span 2;
-    }
+    grid-row: 1 / span 3;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #f9f9f9;
+    padding: 12px;
 }

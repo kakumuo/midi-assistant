@@ -2,6 +2,7 @@ import React from 'react'
 import { useActiveNotes } from '../../util/midi/InputManager';
 import { InstrumentNote, InstrumentNoteKey, noteDataMap } from '../../util/midi';
 import Color from 'colorjs.io';
+import { useNoteColors } from '../../App';
 
 const NOTE_RAD = 3; 
 const NOTE_SPACING = 4; 
@@ -11,6 +12,7 @@ export const ScaleDisplay = (props:{style?:React.CSSProperties}) => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null); 
     const clefImgRef = React.useRef<HTMLImageElement>(null); 
     const activeNotes = useActiveNotes(); 
+    const {noteColors} = useNoteColors();
 
     React.useEffect(() => {
         if(!clefImgRef.current) return; 
@@ -96,11 +98,11 @@ export const ScaleDisplay = (props:{style?:React.CSSProperties}) => {
             const spaceOffset = 0;
             // const spaceOffset = noteI % 2 ? -1 * noteRad / 2 : 0; 
             ctx.beginPath();
-            ctx.fillStyle = noteDataMap[note.key].color; 
+            ctx.fillStyle = noteColors[note.key];
             ctx.arc(x, y + spaceOffset, noteRad, 0, Math.PI * 2); 
             ctx.fill(); 
             ctx.textAlign = 'center', 
-            ctx.fillStyle = new Color(noteDataMap[note.key].color).darken(.5) + ""; 
+            ctx.fillStyle = new Color(noteColors[note.key]).darken(.5) + ""; 
             ctx.font = `${noteRad}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -111,7 +113,7 @@ export const ScaleDisplay = (props:{style?:React.CSSProperties}) => {
 
 
 
-    }, [activeNotes, clefImgRef.current]); // Re-render when active notes change
+    }, [activeNotes, clefImgRef.current, noteColors]); // Re-render when active notes change
 
     return <canvas ref={canvasRef} style={props.style}>
         <img ref={clefImgRef} src='treble.webp'></img>

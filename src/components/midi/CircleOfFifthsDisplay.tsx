@@ -1,14 +1,16 @@
 import React from 'react'
 import { useActiveNotes } from '../../util/midi/InputManager';
-import { InstrumentNoteKey, noteDataMap } from '../../util/midi';
+import { InstrumentNoteKey } from '../../util/midi';
 import Color from 'colorjs.io';
+import { useNoteColors } from '../../App';
 
 
-export const CoFDisplay = (props:{style?:React.CSSProperties}) => {
+export const CoFDisplay = (props:{style?:React.CSSProperties, className?:string, id?:string}) => {
     const [containerDim, setContainerDim] = React.useState({width: 0, height: 0})
     const activeNotes = useActiveNotes(); 
     const canvasRef = React.useRef<HTMLCanvasElement>(null); 
     const containerRef = React.useRef<HTMLDivElement>(null);
+    const {noteColors} = useNoteColors();
 
     React.useEffect(() => {
         if(!canvasRef.current) return; 
@@ -82,7 +84,7 @@ export const CoFDisplay = (props:{style?:React.CSSProperties}) => {
                 ctx.beginPath();
                 ctx.moveTo(pos1.xOffset, pos1.yOffset);
                 ctx.lineTo(pos2.xOffset, pos2.yOffset);
-                ctx.strokeStyle = noteDataMap[pos1.note.note].color;
+                ctx.strokeStyle = noteColors[pos1.note.note];
                 ctx.lineWidth = 4;
                 ctx.stroke();
             }
@@ -100,9 +102,9 @@ export const CoFDisplay = (props:{style?:React.CSSProperties}) => {
                 ctx.rect(x - size/2, y - size/2, size, size);
             }
             
-            const color = isPressed ? noteDataMap[note.note].color : 'white';
+            const color = isPressed ? noteColors[note.note] : 'white';
             const borderColor = isPressed ? 
-                new Color(noteDataMap[note.note].color).darken() : 
+                new Color(noteColors[note.note]).darken() : 
                 'black';
             
             ctx.fillStyle = color;
@@ -118,7 +120,7 @@ export const CoFDisplay = (props:{style?:React.CSSProperties}) => {
             ctx.fillText(note.display, x, y);
         });
 
-    }, [notePositions]);
+    }, [notePositions, noteColors]);
 
-    return <canvas style={props.style} ref={canvasRef} />
+    return <canvas className={props.className} id={props.id} style={props.style} ref={canvasRef} />
 }
