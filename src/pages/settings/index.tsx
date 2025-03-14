@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Card, Divider, IconButton, Sheet, Typography } from '@mui/joy';
 import { MainPage } from '../../components/MainPage';
 import { StyleSheet } from '../../util';
-import { InstrumentNoteKey } from '../../util/midi';
+import { InstrumentNote } from '../../util/midi';
 import { useNoteColors } from '../../App';
 import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
@@ -15,7 +15,7 @@ const styles: StyleSheet = {
         flexDirection: 'column',
         gap: '24px',
         height: '100%',
-        backgroundColor: '#f8f9fa'
+        backgroundColor: '#f8f9fa', 
     },
     header: {
         display: 'flex',
@@ -126,7 +126,7 @@ export const SettingsPage = () => {
         }
     }, []);
 
-    const handleColorChange = (note: InstrumentNoteKey, color: string) => {
+    const handleColorChange = (note: InstrumentNote['key'], color: string) => {
         setTempColors((prev:any) => ({
             ...prev,
             [note]: color
@@ -162,7 +162,7 @@ export const SettingsPage = () => {
     };
 
     return (
-        <MainPage>
+        <MainPage style={{overflow: 'hidden'}}>
             <Box sx={styles.container}>
                 <Box sx={styles.header}>
                     <Typography level="h2">Settings</Typography>
@@ -198,7 +198,7 @@ export const SettingsPage = () => {
                                     key={note}
                                     note={note}
                                     color={color}
-                                    onChange={(newColor) => handleColorChange(note as InstrumentNoteKey, newColor)}
+                                    onChange={(newColor) => handleColorChange(note as InstrumentNote['key'], newColor)}
                                 />
                             ))}
                         </Box>

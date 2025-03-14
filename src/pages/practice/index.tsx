@@ -1,47 +1,21 @@
-import { Box } from "@mui/joy";
+import { Box, IconButton, Typography } from "@mui/joy";
 import { StyleSheet } from "../../util";
 import React from "react";
 import { MainPage } from "../../components/MainPage";
 import { VirtualKeyboard } from "../../components/VirtualKeyboard";
 import SessionDurationIndicator from "./SessionDuration";
-import { ChordView } from "./ChordView";
-import { StatsView } from "./StatsView";
 
 import './style.css'
+import { CoFDisplay } from "../../components/midi/CircleOfFifthsDisplay";
+import { useActiveChords } from "../../util/midi/InputManager";
+import { Metronome } from "./Metronome";
+import { VelocityView } from "./VelocityView";
+import { TempoView } from "./TempoView";
+import { ScaleView } from "./ScaleView";
 
-const modes = [
-    "Major",
-    "Natural Minor",
-    "Harmonic Minor",
-    "Melodic Minor",
-    "Dorian",
-    "Phrygian", 
-    "Lydian",
-    "Mixolydian",
-    "Locrian",
-    "Pentatonic Major",
-    "Pentatonic Minor",
-    "Blues"
-]
-
-const scales = [
-    "C",
-    "C#/Db",
-    "D",
-    "D#/Eb", 
-    "E",
-    "F",
-    "F#/Gb",
-    "G",
-    "G#/Ab",
-    "A", 
-    "A#/Bb",
-    "B"
-]
 
 export const PracticePage = () => {
-    const [scale, setScale] = React.useState(scales[0]); 
-    const [mode, setMode] = React.useState(modes[0]); 
+    const activeChords = useActiveChords(); 
 
     return <MainPage style={styles.container}>
         {/* Header */}
@@ -49,14 +23,16 @@ export const PracticePage = () => {
             <SessionDurationIndicator />
         </Box>
 
-        <Box id="practice-maincontent">
-            <ChordView id="chordview"/>
-            {/* <CoFView id="cofview" /> */}
-            <StatsView id="statsview" />
+        <Box style={styles.content}>
+            <Typography level="h1">{activeChords.join(" or ")}</Typography>
+            <CoFDisplay style={{width: '100%', aspectRatio: '1/1'}} rootKey="C"  />
+            <Metronome />    
+            <VelocityView style={{border: 'solid'}} />   
+            <TempoView style={{border: 'solid'}}  />
+            <ScaleView style={{border: 'solid'}} />
         </Box>
 
-        <VirtualKeyboard style={{height: 150}} />
-
+        <VirtualKeyboard style={{height: 'auto'}} minNote={{key: 'C', octave: 3}} maxNote={{key: 'C', octave: 6}} />
     </MainPage>
 }
 
@@ -70,10 +46,26 @@ const styles:StyleSheet = {
     container: {
         display: 'grid',
         gridTemplateColumns: 'auto', 
-        gridTemplateRows: 'auto 1fr auto', 
+        gridTemplateRows: '10% 70% 20%', 
         maxHeight: '100%',
         height: '100%', 
     }, 
+    content: {
+        display: 'grid',
+        position: 'relative', 
+        gridTemplateColumns: '1fr 1fr 1fr', 
+        gridTemplateRows: 'auto auto', 
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    metronomeBtn: {
+        position: 'absolute', 
+        bottom: 0, 
+        right: 0, 
+        margin: 8, 
+        width: '5vw', 
+        height: '5vw'
+    },
     page: {
         border: 'solid 1px red',
         backgroundColor: 'lightgray'

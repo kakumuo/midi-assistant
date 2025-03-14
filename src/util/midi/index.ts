@@ -1,37 +1,7 @@
-
 export class InstrumentNote {
-    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = "C"
-    octave: number = 0
+    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = 'C'; 
+    octave: number = 0; 
     velocity?: number = 0
-}
-
-export enum InstrumentNoteKey {
-    C = "C",
-    C_SHARP = "C#",
-    D = "D",
-    D_SHARP = "D#",
-    E = "E",
-    F = "F",
-    F_SHARP = "F#",
-    G = "G",
-    G_SHARP = "G#",
-    A = "A",
-    A_SHARP = "A#",
-    B = "B"
-}
-export const noteDataMap:Record<InstrumentNoteKey, {color:string}> = {
-    [InstrumentNoteKey.C]:          { color: "#FF0000" },
-    [InstrumentNoteKey.C_SHARP]:    { color: "#FF4500" },
-    [InstrumentNoteKey.D]:          { color: "#FFA500" },
-    [InstrumentNoteKey.D_SHARP]:    { color: "#FFD700" },
-    [InstrumentNoteKey.E]:          { color: "#ADFF2F" },
-    [InstrumentNoteKey.F]:          { color: "#32CD32" },
-    [InstrumentNoteKey.F_SHARP]:    { color: "#008000" },
-    [InstrumentNoteKey.G]:          { color: "#006400" },
-    [InstrumentNoteKey.G_SHARP]:    { color: "#4B0082" },
-    [InstrumentNoteKey.A]:          { color: "#483D8B" },
-    [InstrumentNoteKey.A_SHARP]:    { color: "#000080" },
-    [InstrumentNoteKey.B]:          { color: "#0000CD" },
 }
 
 export enum InstrumentKey {
@@ -56,34 +26,6 @@ export enum IntervalType {
     MINOR_SEVENTH = "Minor Seventh",
     MAJOR_SEVENTH = "Major Seventh",
     PERFECT_OCTAVE = "Octave",
-}
-
-
-export enum ChordType {
-    NONE = "",
-    MAJOR = "Major",
-    MINOR = "Minor", 
-    DIMINISHED = "Diminished",
-    AUGMENTED = "Augmented",
-    MAJOR_7TH = "Major 7th",
-    MINOR_7TH = "Minor 7th",
-    DOMINANT_7TH = "Dominant 7th", 
-    HALF_DIMINISHED_7TH = "Half Diminished 7th",
-    DIMINISHED_7TH = "Diminished 7th",
-    MAJOR_9TH = "Major 9th",
-    MINOR_9TH = "Minor 9th",
-    DOMINANT_9TH = "Dominant 9th",
-    MAJOR_11TH = "Major 11th",
-    MINOR_11TH = "Minor 11th", 
-    DOMINANT_11TH = "Dominant 11th",
-    MAJOR_13TH = "Major 13th",
-    MINOR_13TH = "Minor 13th",
-    DOMINANT_13TH = "Dominant 13th",
-    SUS2 = "Sus2",
-    SUS4 = "Sus4",
-    ADD9 = "Add9",
-    SIXTH = "6th",
-    MINOR_6TH = "Minor 6th"
 }
 
 export const enum InstrumentEventType {

@@ -5,9 +5,8 @@ import { NavigationBar, NavigationOption } from "./components/NavigationBar";
 import { StyleSheet } from "./util";
 import { PracticePage } from "./pages/practice";
 import { InstrumentInputProvider } from "./util/midi/InputManager";
-import { InstrumentKey, InstrumentNote } from "./util/midi";
+import { InstrumentNote } from "./util/midi";
 import { SettingsPage } from "./pages/settings";
-
 
 
 export type ApplicationData = {
@@ -39,8 +38,9 @@ export const App = () => {
     }); 
 
     const navOptions:NavigationOption[] = [
+        // {label: "Sight Reading", target: <SightReadingPage />},
         {label: "Practice", target: <PracticePage />},
-        {label: "Settings", target: <SettingsPage />}
+        {label: "Settings", target: <SettingsPage />},
     ] 
 
     return(
@@ -58,11 +58,12 @@ export const App = () => {
 const styles:StyleSheet = {
     container: {
         display: 'grid', 
-        gridTemplateRows: 'auto auto', 
+        gridTemplateColumns: 'auto',
+        gridTemplateRows: 'auto 1fr', 
         border: 'solid 1px black', 
-        height: '100vh',
-        minHeight: '100vh', 
-        maxHeight: '100vh',
+        height: '100dvh',
+        minHeight: '100dvh', 
+        maxHeight: '100dvh',
         padding: 8,
     }, 
     page: {

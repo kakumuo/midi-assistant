@@ -1,15 +1,11 @@
-import { Box, Button, Typography } from "@mui/joy";
+import { Box, Button, colors, Typography } from "@mui/joy";
 import React from "react";
-import { InstrumentNote, noteDataMap } from "../util/midi";
+import { InstrumentNote } from "../util/midi";
 import { useActiveNotes } from "../util/midi/InputManager";
 import { StyleSheet } from "../util";
 import Color from "colorjs.io";
 import { useNoteColors } from "../App";
 
-
-type VirtualKey = {
-    key:InstrumentNote, 
-}
 
 const notes:InstrumentNote[] = [
     {key: 'C', octave: 2},
@@ -60,9 +56,45 @@ const notes:InstrumentNote[] = [
     {key: 'A', octave: 5},
     {key: 'A#', octave: 5},
     {key: 'B', octave: 5},
+    {key: 'C', octave: 6},
+    {key: 'C#', octave: 6},
+    {key: 'D', octave: 6},
+    {key: 'D#', octave: 6},
+    {key: 'E', octave: 6},
+    {key: 'F', octave: 6},
+    {key: 'F#', octave: 6},
+    {key: 'G', octave: 6},
+    {key: 'G#', octave: 6},
+    {key: 'A', octave: 6},
+    {key: 'A#', octave: 6},
+    {key: 'B', octave: 6},
+    {key: 'C', octave: 7},
+    {key: 'C#', octave: 7},
+    {key: 'D', octave: 7},
+    {key: 'D#', octave: 7},
+    {key: 'E', octave: 7},
+    {key: 'F', octave: 7},
+    {key: 'F#', octave: 7},
+    {key: 'G', octave: 7},
+    {key: 'G#', octave: 7},
+    {key: 'A', octave: 7},
+    {key: 'A#', octave: 7},
+    {key: 'B', octave: 7},
+    {key: 'C', octave: 8},
+    {key: 'C#', octave: 8},
+    {key: 'D', octave: 8},
+    {key: 'D#', octave: 8},
+    {key: 'E', octave: 8},
+    {key: 'F', octave: 8},
+    {key: 'F#', octave: 8},
+    {key: 'G', octave: 8},
+    {key: 'G#', octave: 8},
+    {key: 'A', octave: 8},
+    {key: 'A#', octave: 8},
+    {key: 'B', octave: 8},
 ]
 
-export const VirtualKeyboard = (props:{style?:React.CSSProperties}) => {
+export const VirtualKeyboard = (props:{style?:React.CSSProperties, minNote?:InstrumentNote, maxNote?:InstrumentNote}) => {
     const [containerDim, setContainerDim] = React.useState({width: 0, height: 0}); 
     const activeNotes = useActiveNotes(); 
     const containerRef = React.useRef<HTMLDivElement>(null); 
@@ -82,75 +114,76 @@ export const VirtualKeyboard = (props:{style?:React.CSSProperties}) => {
         return () => observer.disconnect()
     }, [containerDim]); 
 
+    const visibleNotes = React.useMemo(() => {
+        let [l, r] = [0, notes.length]; 
+
+        notes.forEach((n, i) => {
+            if(props.minNote && props.minNote.key == n.key && props.minNote.octave == n.octave)
+                l = i
+            if(props.maxNote && props.maxNote.key == n.key && props.maxNote.octave == n.octave)
+                r = i
+        })
+        return notes.filter((_, i) => l <= i && i <= r); 
+    }, [props.minNote, props.maxNote]) 
+
 
     const keys = React.useMemo(() => {
-        return notes.map((note, i) => {
+        return visibleNotes.map((note, i) => {
             const isAccidental = note.key.includes("#");
             let isPressed = false; 
-            const {width, height} = containerDim; 
-
-            const noteWidth = 48
-            const accidentalWidth = noteWidth / 1.25
-
-            const colors = {color: "", backgroundColor: "", borderColor: ""}
             
+            const noteWidth = 48; 
+            const accidentalWidth = noteWidth * .9
             activeNotes.forEach(n => {if(n.key == note.key && n.octave == note.octave) isPressed = true}); 
 
+            const targetStyle:React.CSSProperties = isAccidental ? 
+                {
+                    color: 'white', 
+                    backgroundColor: 'black', 
+                    borderColor: 'black', 
+                    width: noteWidth * .9,
+                    height: '65%',
+                    marginLeft: (-noteWidth / 2) + (noteWidth - accidentalWidth) / 2,
+                    marginRight: (-noteWidth / 2) + (noteWidth - accidentalWidth) / 2,
+                    zIndex: 2
+                }
+            :
+                {
+                    color: 'black', 
+                    backgroundColor: 'white', 
+                    borderColor: 'black', 
+                    width: noteWidth,
+                    marginLeft: 0, 
+                    marginRight: 0
+                }
+
             if(isPressed) {
-                colors.color = `${new Color(noteColors[note.key]).darken(2)}`; 
-                colors.borderColor = colors.color; 
-                colors.backgroundColor = noteColors[note.key]; 
-            }else if (isAccidental) {
-                colors.color = 'white'; 
-                colors.backgroundColor = 'black'; 
-                colors.borderColor = 'black';
-            }else {
-                colors.color = 'black'; 
-                colors.backgroundColor = 'white'; 
-                colors.borderColor = 'black';
+                targetStyle.color = `${new Color(noteColors[note.key]).darken(2)}`; 
+                targetStyle.borderColor = targetStyle.color; 
+                targetStyle.backgroundColor = noteColors[note.key]; 
             }
             
-
-            const keyStyle:React.CSSProperties = {
-                ...colors, 
-                height: height / (isAccidental ? 1.75 : 1), 
-                marginLeft: isAccidental ? (-1 * accidentalWidth / 2) : i == 0 ? 0 : -1,
-                marginRight: isAccidental ? (-1 * accidentalWidth / 2) : -1,
-                zIndex: isAccidental ? 1 : 0,
-                position: 'relative', 
-                minWidth: isAccidental ? accidentalWidth : noteWidth
-            }
-
-            return <Typography key={i} style={{...styles.key, ...keyStyle}}>{note.key}{note.octave}</Typography>
+            return <Typography key={i} style={{...styles.key, ...targetStyle}}>{note.key}{note.octave}</Typography>
         }); 
-    }, [activeNotes, containerDim]); 
+    }, [activeNotes, containerDim, visibleNotes]); 
 
     return (
-        <Box ref={containerRef} style={{...styles.container, ...props.style}}>
-            {/* keyboard */}
-            <Box style={styles.piano}>
-                {keys}
-            </Box>
+        <Box style={{...props.style, ...styles.piano}}>
+            {keys}
         </Box>
     ); 
 }
 
 const styles:StyleSheet = {
-    container: {
-        display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateRows: 'auto', 
-    }, 
-
     piano: {
-        position: "relative", display: 'flex', overflow: 'scroll', scrollbarWidth: 'none'
+        position: "relative", display: 'flex', overflow: 'scroll', scrollbarWidth: 'none',
+        justifyContent: 'center'
     }, 
     
     key: {
-        borderBottomLeftRadius: 8, borderBottomRightRadius: 8, border: 'solid 2px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', 
+        borderBottomLeftRadius: 8, borderBottomRightRadius: 8, 
+        border: 'solid 2px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', 
         padding: 8
-    }, 
-
-    aside: {
-
     }, 
 }
 

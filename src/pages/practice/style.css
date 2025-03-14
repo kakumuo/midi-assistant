@@ -1,6 +1,6 @@
 #practice-maincontent {
     display: grid;
-    grid-template-columns: 50% auto;
+    grid-template-columns: auto minmax(400px, 600px);
     grid-template-rows: 50% auto; 
     gap: 16px;
     padding: 16px;
@@ -24,4 +24,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     background-color: #f9f9f9;
     padding: 12px;
+    max-width: 600px;
+    min-width: 400px;
 }
