@@ -1,210 +1,121 @@
 import React from 'react';
-import { Box, Button, Card, Divider, IconButton, Sheet, Typography } from '@mui/joy';
+import { Box, Button, Card, Divider, IconButton, Input, Sheet, Typography } from '@mui/joy';
 import { MainPage } from '../../components/MainPage';
 import { StyleSheet } from '../../util';
-import { InstrumentNote } from '../../util/midi';
 import { useNoteColors } from '../../App';
-import RestartAltRoundedIcon from '@mui/icons-material/RestartAltRounded';
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
-import Color from 'colorjs.io';
+import { InstrumentNote } from '../../util/midi';
+import { SideBar } from './sidebar';
 
-const styles: StyleSheet = {
-    container: {
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        height: '100%',
-        backgroundColor: '#f8f9fa', 
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 8px'
-    },
-    content: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        flex: 1,
-        overflow: 'auto'
-    },
-    section: {
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
-    },
-    colorGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-        gap: '16px'
-    },
-    colorCard: {
-        overflow: 'hidden',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    },
-    colorPreview: {
-        width: '100%',
-        height: '80px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative'
-    },
-    colorInfo: {
-        padding: '12px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-    },
-    colorPicker: {
-        width: '100%',
-        height: '32px',
-        padding: 0,
-        border: 'none',
-        cursor: 'pointer'
-    },
-    buttonContainer: {
-        display: 'flex',
-        gap: '8px'
-    },
-    previewText: {
-        color: 'white',
-        mixBlendMode: 'difference',
-        fontWeight: 'bold',
-        fontSize: '2rem'
-    }
-};
-
-const ColorCard = ({ 
-    note, 
-    color, 
-    onChange 
-}: { 
-    note: string; 
-    color: string; 
-    onChange: (color: string) => void; 
-}) => {
-    return (
-        <Card variant="outlined" sx={styles.colorCard}>
-            <Box sx={styles.colorPreview} style={{ backgroundColor: color }}>
-                <Typography sx={styles.previewText}>{note}</Typography>
-            </Box>
-            <Box sx={styles.colorInfo}>
-                <Typography level="body-sm" fontWeight="bold">
-                    {note}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <input
-                        type="color"
-                        value={color}
-                        onChange={(e) => onChange(e.target.value)}
-                        style={styles.colorPicker}
-                    />
-                    <Typography level="body-xs">
-                        {color.toUpperCase()}
-                    </Typography>
-                </Box>
-            </Box>
-        </Card>
-    );
-};
+type SettingsData = {[key:string]:string}
+export const SettingsContext = React.createContext<{
+    settingsData: SettingsData, 
+    setSettingsData: React.Dispatch<React.SetStateAction<SettingsData>>
+}>({} as any); 
 
 export const SettingsPage = () => {
-    const { noteColors, setNoteColors } = useNoteColors();
-    const [tempColors, setTempColors] = React.useState(noteColors);
-    const [hasChanges, setHasChanges] = React.useState(false);
+    const {noteColors, setNoteColors} = useNoteColors(); 
+    const [settingsData, setSettingsData] = React.useState<SettingsData>({}); 
+    const handleNoteColorChange = (note:InstrumentNote['key'], ev:React.ChangeEvent<HTMLInputElement>) => {
+        if(!ev || !ev.currentTarget) return; 
+        const tmp = Object.assign({}, noteColors); 
+        tmp[note] = ev.currentTarget.value; 
 
-    React.useEffect(() => {
-        const savedColors = localStorage.getItem('noteColors');
-        if (savedColors) {
-            const colors = JSON.parse(savedColors);
-            setNoteColors(colors);
-            setTempColors(colors);
-        }
-    }, []);
+        setNoteColors(tmp); 
+    }
 
-    const handleColorChange = (note: InstrumentNote['key'], color: string) => {
-        setTempColors((prev:any) => ({
-            ...prev,
-            [note]: color
-        }));
-        setHasChanges(true);
-    };
-
-    const handleSave = () => {
-        setNoteColors(tempColors);
-        localStorage.setItem('noteColors', JSON.stringify(tempColors));
-        setHasChanges(false);
-    };
-
-    const handleReset = () => {
-        const defaultColors = {
-            'C': '#ff0000',
-            'C#': '#ff4000',
-            'D': '#ff8000',
-            'D#': '#ffbf00',
-            'E': '#ffff00',
-            'F': '#80ff00',
-            'F#': '#00ff00',
-            'G': '#00ff80',
-            'G#': '#00ffff',
-            'A': '#0080ff',
-            'A#': '#0000ff',
-            'B': '#8000ff'
-        };
-        setTempColors(defaultColors);
-        setNoteColors(defaultColors);
-        localStorage.setItem('noteColors', JSON.stringify(defaultColors));
-        setHasChanges(false);
-    };
-
-    return (
-        <MainPage style={{overflow: 'hidden'}}>
-            <Box sx={styles.container}>
-                <Box sx={styles.header}>
-                    <Typography level="h2">Settings</Typography>
-                    <Box sx={styles.buttonContainer}>
-                        <Button
-                            variant="outlined"
-                            color="neutral"
-                            onClick={handleReset}
-                            startDecorator={<RestartAltRoundedIcon />}
-                        >
-                            Reset
-                        </Button>
-                        <Button
-                            onClick={handleSave}
-                            disabled={!hasChanges}
-                            startDecorator={<SaveRoundedIcon />}
-                            color="primary"
-                        >
-                            Save Changes
-                        </Button>
+    return <SettingsContext.Provider value={{settingsData, setSettingsData}}>
+        <MainPage style={styles.container}>
+            <SideBar />
+            <Box style={styles.main}>
+                <SettingsSection title='General' label='general'>
+                    <Box sx={{
+                        display: 'grid', 
+                        gridTemplateRows: 'repeat(2, auto)', 
+                        gridTemplateColumns: 'repeat(12, 1fr)', 
+                        rowGap: 1,
+                        columnGap: 4, 
+                    }}>
+                        {Object.keys(noteColors).map(noteKey => <Typography key={noteKey}>{noteKey}</Typography>)}
+                        {(Object.keys(noteColors) as InstrumentNote['key'][]).map(noteKey => 
+                            <Input style={styles.colorSelect} key={noteKey} type='color' defaultValue={noteColors[noteKey as InstrumentNote['key']]} onChange={e => handleNoteColorChange(noteKey, e)} />)
+                        }
                     </Box>
-                </Box>
+                </SettingsSection>
 
-                <Box sx={styles.content}>
-                    <Box sx={styles.section}>
-                        <Typography level="title-lg" sx={{ mb: 2 }}>Note Colors</Typography>
-                        <Typography level="body-sm" sx={{ mb: 3, color: 'neutral.500' }}>
-                            Customize the colors for each musical note. Changes will be reflected throughout the application.
-                        </Typography>
-                        <Box sx={styles.colorGrid}>
-                            {Object.entries(tempColors).map(([note, color]) => (
-                                <ColorCard
-                                    key={note}
-                                    note={note}
-                                    color={color}
-                                    onChange={(newColor) => handleColorChange(note as InstrumentNote['key'], newColor)}
-                                />
-                            ))}
-                        </Box>
+                <SettingsSection title='Practice' label='practice'>
+                    <Box sx={{
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr auto',
+                        gridTemplateRows: 'repeat(auto-fill ,auto)',
+                        rowGap: 1,
+                        columnGap: 4, 
+                    }}>
+                       <Typography>Tempo Poll Rate</Typography> <Input type='number' />
+                       <Typography>Velocity Poll Rate</Typography> <Input type='number' />
+                       <Typography>Show Keyboard</Typography> <Input type='number' />
+                       <Typography>Keyboard Start Note</Typography> <Input type='number' />
+                       <Typography>Keyboard End Note</Typography> <Input type='number' />
                     </Box>
-                </Box>
+                </SettingsSection>
             </Box>
         </MainPage>
-    );
-}; 
+    </SettingsContext.Provider>
+}
+
+export const SettingsSection = (props:{title:string, label:string, description?:string, children?:any}) => {
+    const {setSettingsData} = React.useContext(SettingsContext)
+    const self = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+        setSettingsData(prev => {
+            const tmp = Object.assign({}, prev); 
+            tmp[props.label] = props.title
+
+            return tmp; 
+        })
+
+        return () => {
+            setSettingsData(prev => {
+                const tmp = Object.assign({}, prev); 
+                delete tmp[props.label]
+    
+                return tmp; 
+            })
+        }
+    }, [props.title, self])
+
+    return <Box ref={self} sx={styles.section}>
+        <Box>
+            <Typography level='h3'><a style={{textDecoration: 'none', color: 'black'}} href={'#' + props.label}>{props.title}</a></Typography>
+            <Typography>{props.description}</Typography>
+        </Box>
+        {props.children}
+    </Box>
+}
+
+
+const styles:StyleSheet = {
+    container: {
+        overflow: 'hidden',
+        display: 'grid', 
+        gridTemplateColumns: '20% 1fr',
+        gridTemplateRows: 'auto', 
+        gap: 8
+    }, 
+    main: {
+        overflow: 'scroll'
+    },
+    colorSelect: {
+        padding: 0, 
+        border: 0, 
+        boxShadow: 'none'
+    }, 
+    section: {
+        display: 'grid',
+        gridTemplateColumns: '20% 1fr', 
+        gridTemplateRows: 'auto', 
+        width: '100%',
+        borderBottom: 'solid 2px lightgray',
+        padding: 4
+    }
+}

@@ -8,7 +8,7 @@ import { Rectangle, VerticalShadesClosedOutlined } from '@mui/icons-material';
 const MAX_RANGE = 20; 
 const MAX_VELOCITY = 128; 
 const CAPTURE_RATE = 500; 
-export const TempoView = (props:{style?:React.CSSProperties}) => {
+export const TempoView = (props:{style?:React.CSSProperties, outerStyle?:React.CSSProperties}) => {
     const ref = React.useRef<SVGSVGElement >(null); 
     const [containerDim, setCotnainerDim] = React.useState({width: 0, height: 0})
     const [numInputs, setNumInputs] = React.useState<number[]>(Array(MAX_RANGE).fill(0)); 
@@ -96,7 +96,7 @@ export const TempoView = (props:{style?:React.CSSProperties}) => {
         return Math.round(3600 * numInputs[numInputs.length - 1] / CAPTURE_RATE)
     }, [numInputs]); 
 
-    return <Box>
+    return <Box sx={props.outerStyle}>
         <Typography>Avg Tempo: {curAvg}</Typography>
         <svg ref={ref} style={props.style}>
             {graph}

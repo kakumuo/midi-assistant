@@ -8,7 +8,7 @@ import { Rectangle, VerticalShadesClosedOutlined } from '@mui/icons-material';
 const MAX_RANGE = 10; 
 const MAX_VELOCITY = 128; 
 const VELOCITY_CAPTURE_RATE = 500; 
-export const VelocityView = (props:{style?:React.CSSProperties}) => {
+export const VelocityView = (props:{style?:React.CSSProperties, outerStyle?:React.CSSProperties}) => {
     const ref = React.useRef<SVGSVGElement >(null); 
     const [containerDim, setCotnainerDim] = React.useState({width: 0, height: 0})
     const [velocities, setVelocities] = React.useState<{sumVel:number, numInput:number}[]>(
@@ -103,7 +103,7 @@ export const VelocityView = (props:{style?:React.CSSProperties}) => {
         return Math.round(sumVel / numInput); 
     }, [velocities]); 
 
-    return <Box>
+    return <Box sx={props.outerStyle}>
         <Typography>Avg Velocity: {curAvg}</Typography>
         <svg ref={ref} style={props.style}>
             {graph}

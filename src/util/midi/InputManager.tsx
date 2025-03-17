@@ -5,25 +5,24 @@ import { Chord } from "tonal";
 
 const kbdNoteMap:{[key:string]: InstrumentNote} = {
     // Map keyboard keys to notes (2 octaves starting from C4)
-    'a': {key: "C", octave: 4},
-    'w': {key: "C#", octave: 4},
-    's': {key: "D", octave: 4}, 
-    'e': {key: "D#", octave: 4},
-    'd': {key: "E", octave: 4},
-    'f': {key: "F", octave: 4},
-    't': {key: "F#", octave: 4},
-    'g': {key: "G", octave: 4},
-    'y': {key: "G#", octave: 4},
-    'h': {key: "A", octave: 4},
-    'u': {key: "A#", octave: 4},
-    'j': {key: "B", octave: 4},
-
-    'k': {key: "C", octave: 5},
-    'o': {key: "C#", octave: 5},
-    'l': {key: "D", octave: 5},
-    'p': {key: "D#", octave: 5},
-    ';': {key: "E", octave: 5},
-    "'": {key: "F", octave: 5}
+    'a': new InstrumentNote("C",4),
+    'w': new InstrumentNote("C#",4),
+    's': new InstrumentNote("D",4), 
+    'e': new InstrumentNote("D#",4),
+    'd': new InstrumentNote("E",4),
+    'f': new InstrumentNote("F",4),
+    't': new InstrumentNote("F#",4),
+    'g': new InstrumentNote("G",4),
+    'y': new InstrumentNote("G#",4),
+    'h': new InstrumentNote("A",4),
+    'u': new InstrumentNote("A#",4),
+    'j': new InstrumentNote("B",4),
+    'k': new InstrumentNote("C",5),
+    'o': new InstrumentNote("C#",5),
+    'l': new InstrumentNote("D",5),
+    'p': new InstrumentNote("D#",5),
+    ';': new InstrumentNote("E",5),
+    "'": new InstrumentNote("F",5)
 }
 
 const kbdKeyMap:{[key:string]: InstrumentKey} = {

@@ -2,6 +2,27 @@ export class InstrumentNote {
     key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = 'C'; 
     octave: number = 0; 
     velocity?: number = 0
+
+    constructor(key:"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B", octave:number){
+        this.key = key; 
+        this.octave = octave; 
+    }
+
+    public equals(other:InstrumentNote, ignoreAccidentals:boolean=false) {
+        if(ignoreAccidentals)
+            return this.key.substring(0, 1) == other.key.substring(0, 1) && this.octave == other.octave
+        return this.key == other.key && this.octave == other.octave
+    }
+
+    public valueOf() {
+        const keys = ["C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"]
+
+        return keys.indexOf(this.key) + (this.octave * 12); 
+    }
+
+    public toString(){
+        return this.key + this.octave
+    }
 }
 
 export enum InstrumentKey {
@@ -56,71 +77,67 @@ export interface InstrumentNoteEvent extends InstrumentEvent {
 
 // Map MIDI note numbers to InstrumentKey and octave
 export const midiNoteMap: {[key: number]: InstrumentNote} = {
-    36: {key: "C", octave: 3},
-    37: {key: "C#", octave: 3},
-    38: {key: "D", octave: 3},
-    39: {key: "D#", octave: 3},
-    40: {key: "E", octave: 3},
-    41: {key: "F", octave: 3},
-    42: {key: "F#", octave: 3},
-    43: {key: "G", octave: 3},
-    44: {key: "G#", octave: 3},
-    45: {key: "A", octave: 3},
-    46: {key: "A#", octave: 3},
-    47: {key: "B", octave: 3},
-
-    48: {key: "C", octave: 4},
-    49: {key: "C#", octave: 4},
-    50: {key: "D", octave: 4},
-    51: {key: "D#", octave: 4},
-    52: {key: "E", octave: 4},
-    53: {key: "F", octave: 4},
-    54: {key: "F#", octave: 4},
-    55: {key: "G", octave: 4},
-    56: {key: "G#", octave: 4},
-    57: {key: "A", octave: 4},
-    58: {key: "A#", octave: 4},
-    59: {key: "B", octave: 4},
-    
-    60: {key: "C", octave: 5},
-    61: {key: "C#", octave: 5},
-    62: {key: "D", octave: 5},
-    63: {key: "D#", octave: 5},
-    64: {key: "E", octave: 5},
-    65: {key: "F", octave: 5},
-    66: {key: "F#", octave: 5},
-    67: {key: "G", octave: 5},
-    68: {key: "G#", octave: 5},
-    69: {key: "A", octave: 5},
-    70: {key: "A#", octave: 5},
-    71: {key: "B", octave: 5},
-
-    72: {key: "C", octave: 6},
-    73: {key: "C#", octave: 6},
-    74: {key: "D", octave: 6},
-    75: {key: "D#", octave: 6},
-    76: {key: "E", octave: 6},
-    77: {key: "F", octave: 6},
-    78: {key: "F#", octave: 6},
-    79: {key: "G", octave: 6},
-    80: {key: "G#", octave: 6},
-    81: {key: "A", octave: 6},
-    82: {key: "A#", octave: 6},
-    83: {key: "B", octave: 6},
-    
-    84: {key: "C", octave: 7},
-    85: {key: "C#", octave: 7},
-    86: {key: "D", octave: 7},
-    87: {key: "D#", octave: 7},
-    88: {key: "E", octave: 7},
-    89: {key: "F", octave: 7},
-    90: {key: "F#", octave: 7},
-    91: {key: "G", octave: 7},
-    92: {key: "G#", octave: 7},
-    93: {key: "A", octave: 7},
-    94: {key: "A#", octave: 7},
-    95: {key: "B", octave: 7},
-    96: {key: "C", octave: 8}
+    36: new InstrumentNote("C",3),
+    37: new InstrumentNote("C#",3),
+    38: new InstrumentNote("D",3),
+    39: new InstrumentNote("D#",3),
+    40: new InstrumentNote("E",3),
+    41: new InstrumentNote("F",3),
+    42: new InstrumentNote("F#",3),
+    43: new InstrumentNote("G",3),
+    44: new InstrumentNote("G#",3),
+    45: new InstrumentNote("A",3),
+    46: new InstrumentNote("A#",3),
+    47: new InstrumentNote("B",3),
+    48: new InstrumentNote("C",4),
+    49: new InstrumentNote("C#",4),
+    50: new InstrumentNote("D",4),
+    51: new InstrumentNote("D#",4),
+    52: new InstrumentNote("E",4),
+    53: new InstrumentNote("F",4),
+    54: new InstrumentNote("F#",4),
+    55: new InstrumentNote("G",4),
+    56: new InstrumentNote("G#",4),
+    57: new InstrumentNote("A",4),
+    58: new InstrumentNote("A#",4),
+    59: new InstrumentNote("B",4),
+    60: new InstrumentNote("C",5),
+    61: new InstrumentNote("C#",5),
+    62: new InstrumentNote("D",5),
+    63: new InstrumentNote("D#",5),
+    64: new InstrumentNote("E",5),
+    65: new InstrumentNote("F",5),
+    66: new InstrumentNote("F#",5),
+    67: new InstrumentNote("G",5),
+    68: new InstrumentNote("G#",5),
+    69: new InstrumentNote("A",5),
+    70: new InstrumentNote("A#",5),
+    71: new InstrumentNote("B",5),
+    72: new InstrumentNote("C",6),
+    73: new InstrumentNote("C#",6),
+    74: new InstrumentNote("D",6),
+    75: new InstrumentNote("D#",6),
+    76: new InstrumentNote("E",6),
+    77: new InstrumentNote("F",6),
+    78: new InstrumentNote("F#",6),
+    79: new InstrumentNote("G",6),
+    80: new InstrumentNote("G#",6),
+    81: new InstrumentNote("A",6),
+    82: new InstrumentNote("A#",6),
+    83: new InstrumentNote("B",6),
+    84: new InstrumentNote("C",7),
+    85: new InstrumentNote("C#",7),
+    86: new InstrumentNote("D",7),
+    87: new InstrumentNote("D#",7),
+    88: new InstrumentNote("E",7),
+    89: new InstrumentNote("F",7),
+    90: new InstrumentNote("F#",7),
+    91: new InstrumentNote("G",7),
+    92: new InstrumentNote("G#",7),
+    93: new InstrumentNote("A",7),
+    94: new InstrumentNote("A#",7),
+    95: new InstrumentNote("B",7),
+    96: new InstrumentNote("C",8)
 };
 
 

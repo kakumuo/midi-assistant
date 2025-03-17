@@ -36,7 +36,7 @@ const SessionDurationIndicator = () => {
         const bkgColor = new Color(targetColor).lighten(.2); 
         
         if(indicatorState == IndicatorState.DURATION)
-            background = paused ? 'lightgray' : 'Highlight'
+            background = paused ? 'gray' : 'blue'
         else {
             // FIXME: gradient stops half way
             background = `linear-gradient(to left, ${targetColor} ${progress}%, ${bkgColor} ${progress}%)`;

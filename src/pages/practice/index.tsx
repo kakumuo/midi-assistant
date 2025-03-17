@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography } from "@mui/joy";
+import { Box, IconButton, Option, Select, Typography } from "@mui/joy";
 import { StyleSheet } from "../../util";
 import React from "react";
 import { MainPage } from "../../components/MainPage";
@@ -7,32 +7,47 @@ import SessionDurationIndicator from "./SessionDuration";
 
 import './style.css'
 import { CoFDisplay } from "../../components/midi/CircleOfFifthsDisplay";
-import { useActiveChords } from "../../util/midi/InputManager";
 import { Metronome } from "./Metronome";
 import { VelocityView } from "./VelocityView";
 import { TempoView } from "./TempoView";
 import { ScaleView } from "./ScaleView";
+import { InstrumentNote } from "../../util/midi";
+import { ChordText } from "./ChordText";
 
+const keyOptions: InstrumentNote['key'][] = [
+    "C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"
+]
+
+const modeOptions:string[] = [
+    'Major', 
+    'Relative Minor'
+]
 
 export const PracticePage = () => {
-    const activeChords = useActiveChords(); 
+    const [modeOption, setModeOption] = React.useState(modeOptions[0]);
+    const [keyOption, setKeyOption] = React.useState(keyOptions[0]);
 
     return <MainPage style={styles.container}>
         {/* Header */}
         <Box style={styles.header}>
+            <Select value={keyOption}>{keyOptions.map(k => <Option onClick={e => setKeyOption(k)} label={k} value={k} key={k} children={k} />)}</Select>
+            <Select value={modeOption}>{modeOptions.map(m => <Option onClick={e => setModeOption(m)} label={m} value={m} key={m} children={m} />)}</Select>
             <SessionDurationIndicator />
         </Box>
 
         <Box style={styles.content}>
-            <Typography level="h1">{activeChords.join(" or ")}</Typography>
-            <CoFDisplay style={{width: '100%', aspectRatio: '1/1'}} rootKey="C"  />
-            <Metronome />    
-            <VelocityView style={{border: 'solid'}} />   
-            <TempoView style={{border: 'solid'}}  />
-            <ScaleView style={{border: 'solid'}} />
+            <ChordText style={{gridArea: '1 / 1 / span 1 / span 1'}} />
+            <ScaleView style={{gridArea: '2 / 1 / span 2 / span 1', height: '100%', width: '100%'}} key={keyOption} />
+
+
+            <Box style={{gridArea: '1 / 3 / span 1 / span 1'}} />    
+            <VelocityView outerStyle={{gridArea: '2 / 3 / span 1 / span 1'}} />
+            <TempoView    outerStyle={{gridArea: '3 / 3 / span 1 / span 1'}}  />
+
+            <CoFDisplay style={{gridArea: '1 / 2 / span 3 / span 1', aspectRatio: '1/1', width: '500px', justifySelf: 'center', alignSelf: 'center'}} rootKey={keyOption} mode={modeOption}/>
         </Box>
 
-        <VirtualKeyboard style={{height: 'auto'}} minNote={{key: 'C', octave: 3}} maxNote={{key: 'C', octave: 6}} />
+        <VirtualKeyboard style={{height: 'auto'}} minNote={new InstrumentNote('C', 3)} maxNote={new InstrumentNote('C', 6)} />
     </MainPage>
 }
 
@@ -46,17 +61,18 @@ const styles:StyleSheet = {
     container: {
         display: 'grid',
         gridTemplateColumns: 'auto', 
-        gridTemplateRows: '10% 70% 20%', 
+        gridTemplateRows: 'auto 1fr 15%', 
         maxHeight: '100%',
         height: '100%', 
     }, 
     content: {
         display: 'grid',
         position: 'relative', 
-        gridTemplateColumns: '1fr 1fr 1fr', 
-        gridTemplateRows: 'auto auto', 
+        gridTemplateColumns: '20% auto 20%', 
+        gridTemplateRows: '10% auto auto', 
         justifyContent: 'center',
-        alignItems: 'center',
+        alignContent: 'center',
+        gap: 8,
     },
     metronomeBtn: {
         position: 'absolute', 
