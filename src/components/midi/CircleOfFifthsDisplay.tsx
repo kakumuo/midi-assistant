@@ -76,7 +76,7 @@ export const CoFDisplay = (props:{style?:React.CSSProperties, className?:string,
                 color = `${new Color(noteColors[note.note]).darken(.4)}`
             }
 
-            let curNotePos = (keys.indexOf(note.note) + rootI) % keys.length; 
+            let curNotePos = (keys.indexOf(note.note) + (12 - rootI)) % keys.length; 
             
             let targetShape = <circle cx={x} cy={y} r={size} stroke={color} strokeWidth={sWidth} fill={bkgColor} />
 
