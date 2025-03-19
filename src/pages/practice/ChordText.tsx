@@ -7,6 +7,6 @@ export const ChordText = (props:{style?:React.CSSProperties}) => {
     const activeChords = useActiveChords(); 
 
     return <Box style={props.style}>
-        {activeChords.map(c => <Typography level="h1">{c}</Typography>)}
+        {activeChords.map(c => <Typography key={c} level="h1">{c}</Typography>)}
     </Box>
     }

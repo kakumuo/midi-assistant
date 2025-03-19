@@ -26,7 +26,7 @@ export const CoFDisplay = (props:{style?:React.CSSProperties, className?:string,
     const containerRef = React.useRef<SVGSVGElement>(null); 
     const [containerSize, setContainerSize] = React.useState<{width: number, height: number}>({width: 0, height: 0});
     const activeNotes = useActiveNotes();  
-    const {noteColors} = useNoteColors(); 
+    const noteColors = useNoteColors(); 
 
     React.useEffect(() => {
         if(!containerRef || !containerRef.current) return; 

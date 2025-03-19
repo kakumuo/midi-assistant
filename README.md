@@ -14,19 +14,20 @@ A midi visualizer for piano
 # Todo
 ### Fixes
 - Practice: 
-    - Accurate detection of tempo
-    - Get velocity of multiple notes being held simultaneously
-    - Add lines for notes outside of bar in chord viewer or implement existing library
-    - Clef doesnt appear on page refresh/load
-    - Stack CoF and scale display over each other when window width < window hieght
-    - Show all notes faded out on scale display under chord, highlight when notes are pressed. Stack like keys on piano. Ignore octaves
-    - Metronome highlights not showing up on iOS
-    - Add Sustain input
+    - ~~Accurate detection of tempo~~[DONE]
+    - ~~Get velocity of multiple notes being held simultaneously~~[DONE]
+    - ~~Add lines for notes outside of bar in chord viewer or implement existing library~~[DONE]
+    - ~~Clef doesnt appear on page refresh/load~~[DONE]
+    - ~~Stack CoF and scale display over each other when window width < window hieght~~[DONE]
+    - ~~Show all notes faded out on scale display under chord, highlight when notes are pressed. Stack like keys on piano. Ignore octaves~~[DONE]
+    - ~~Metronome highlights not showing up on iOS~~[IGNORE]
+    - ~~Add Sustain input~~[DONE]
 ### Future
 - General
     - Onscreen Virtual Keyboard (Controllable on PC Keyboard)
     - Save data to browser/server
     - Use Notes type/class from 'tonal' library
+    - React Router
 - Practice
     - ~~Session Duration: Pause, Reset, Start Countdown Timer~~ [DONE]
     - ~~Chord Viewer~~ [DONE]
@@ -34,6 +35,7 @@ A midi visualizer for piano
     - ~~Metrinome~~ [DONE]
     - ~~Basic/Intermediate/Advanced Panel View (Tap/Click to Change Size)~~ [IGNORE]
     - ~~Long Press to reset individual panels~~ [IGNORE]
+    - Y & X Axis w/ Gridlines to Tempo and Velocity charts
 - Drills: 
     - Create, play, edit and delete drills
     - Display stats at the end of the exercise

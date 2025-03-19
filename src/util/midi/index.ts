@@ -8,6 +8,28 @@ export class InstrumentNote {
         this.octave = octave; 
     }
 
+    static fromNote(note:string){
+        if (!note || note.length < 2) {
+            throw new Error("Invalid note format. Expected format: [key][octave] (e.g., 'C4', 'C#5')");
+        }
+        
+        // Extract the key part (can be one or two characters)
+        const keyPart = note.match(/^[A-G](#)?/)?.[0];
+        if (!keyPart) {
+            throw new Error(`Invalid note key: ${note}`);
+        }
+        
+        // Extract the octave part (remaining digits)
+        const octavePart = note.substring(keyPart.length);
+        const octave = parseInt(octavePart, 10);
+        
+        if (isNaN(octave)) {
+            throw new Error(`Invalid octave in note: ${note}`);
+        }
+        
+        return new InstrumentNote(keyPart as any, octave);
+    }
+
     public equals(other:InstrumentNote, ignoreAccidentals:boolean=false) {
         if(ignoreAccidentals)
             return this.key.substring(0, 1) == other.key.substring(0, 1) && this.octave == other.octave
@@ -18,6 +40,13 @@ export class InstrumentNote {
         const keys = ["C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"]
 
         return keys.indexOf(this.key) + (this.octave * 12); 
+    }
+
+
+    static getValue(key:InstrumentNote['key'], octave:number) {
+        const keys = ["C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"]
+
+        return keys.indexOf(key) + (octave * 12); 
     }
 
     public toString(){

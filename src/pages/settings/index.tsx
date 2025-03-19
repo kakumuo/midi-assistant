@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, Button, Card, Divider, IconButton, Input, Sheet, Typography } from '@mui/joy';
+import { Box, Typography } from '@mui/joy';
 import { MainPage } from '../../components/MainPage';
 import { StyleSheet } from '../../util';
-import { useNoteColors } from '../../App';
-import { InstrumentNote } from '../../util/midi';
 import { SideBar } from './sidebar';
+import { PracticeSection } from './PracticeSection';
+import { GeneralSection } from './GeneralSection';
 
 type SettingsData = {[key:string]:string}
 export const SettingsContext = React.createContext<{
@@ -13,53 +13,19 @@ export const SettingsContext = React.createContext<{
 }>({} as any); 
 
 export const SettingsPage = () => {
-    const {noteColors, setNoteColors} = useNoteColors(); 
     const [settingsData, setSettingsData] = React.useState<SettingsData>({}); 
-    const handleNoteColorChange = (note:InstrumentNote['key'], ev:React.ChangeEvent<HTMLInputElement>) => {
-        if(!ev || !ev.currentTarget) return; 
-        const tmp = Object.assign({}, noteColors); 
-        tmp[note] = ev.currentTarget.value; 
 
-        setNoteColors(tmp); 
-    }
-
-    return <SettingsContext.Provider value={{settingsData, setSettingsData}}>
-        <MainPage style={styles.container}>
-            <SideBar />
-            <Box style={styles.main}>
-                <SettingsSection title='General' label='general'>
-                    <Box sx={{
-                        display: 'grid', 
-                        gridTemplateRows: 'repeat(2, auto)', 
-                        gridTemplateColumns: 'repeat(12, 1fr)', 
-                        rowGap: 1,
-                        columnGap: 4, 
-                    }}>
-                        {Object.keys(noteColors).map(noteKey => <Typography key={noteKey}>{noteKey}</Typography>)}
-                        {(Object.keys(noteColors) as InstrumentNote['key'][]).map(noteKey => 
-                            <Input style={styles.colorSelect} key={noteKey} type='color' defaultValue={noteColors[noteKey as InstrumentNote['key']]} onChange={e => handleNoteColorChange(noteKey, e)} />)
-                        }
-                    </Box>
-                </SettingsSection>
-
-                <SettingsSection title='Practice' label='practice'>
-                    <Box sx={{
-                        display: 'grid', 
-                        gridTemplateColumns: '1fr auto',
-                        gridTemplateRows: 'repeat(auto-fill ,auto)',
-                        rowGap: 1,
-                        columnGap: 4, 
-                    }}>
-                       <Typography>Tempo Poll Rate</Typography> <Input type='number' />
-                       <Typography>Velocity Poll Rate</Typography> <Input type='number' />
-                       <Typography>Show Keyboard</Typography> <Input type='number' />
-                       <Typography>Keyboard Start Note</Typography> <Input type='number' />
-                       <Typography>Keyboard End Note</Typography> <Input type='number' />
-                    </Box>
-                </SettingsSection>
-            </Box>
-        </MainPage>
-    </SettingsContext.Provider>
+    return (
+        <SettingsContext.Provider value={{settingsData, setSettingsData}}>
+            <MainPage style={styles.container}>
+                <SideBar />
+                <Box style={styles.main}>
+                    <GeneralSection />
+                    <PracticeSection />
+                </Box>
+            </MainPage>
+        </SettingsContext.Provider>
+    );
 }
 
 export const SettingsSection = (props:{title:string, label:string, description?:string, children?:any}) => {

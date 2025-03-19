@@ -7,7 +7,7 @@ import Color from "colorjs.io";
 import { useNoteColors } from "../App";
 
 
-const notes:InstrumentNote[] = [
+export const virtualKeyboardNotes:InstrumentNote[] = [
     new InstrumentNote('C', 2),
     new InstrumentNote('C#', 2),
     new InstrumentNote('D', 2),
@@ -98,7 +98,7 @@ export const VirtualKeyboard = (props:{style?:React.CSSProperties, minNote?:Inst
     const [containerDim, setContainerDim] = React.useState({width: 0, height: 0}); 
     const activeNotes = useActiveNotes(); 
     const containerRef = React.useRef<HTMLDivElement>(null); 
-    const {noteColors} = useNoteColors(); 
+    const noteColors = useNoteColors(); 
 
     React.useEffect(() => {
         if(!containerRef.current) return; 
@@ -115,15 +115,15 @@ export const VirtualKeyboard = (props:{style?:React.CSSProperties, minNote?:Inst
     }, [containerDim]); 
 
     const visibleNotes = React.useMemo(() => {
-        let [l, r] = [0, notes.length]; 
+        let [l, r] = [0, virtualKeyboardNotes.length]; 
 
-        notes.forEach((n, i) => {
+        virtualKeyboardNotes.forEach((n, i) => {
             if(props.minNote && props.minNote.key == n.key && props.minNote.octave == n.octave)
                 l = i
             if(props.maxNote && props.maxNote.key == n.key && props.maxNote.octave == n.octave)
                 r = i
         })
-        return notes.filter((_, i) => l <= i && i <= r); 
+        return virtualKeyboardNotes.filter((_, i) => l <= i && i <= r); 
     }, [props.minNote, props.maxNote]) 
 
 

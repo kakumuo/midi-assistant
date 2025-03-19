@@ -1,116 +1,74 @@
-import React from "react";
-import { StyleSheet } from "../../util";
+import { Box, Typography } from "@mui/joy";
 import { MainPage } from "../../components/MainPage";
-import { MoreHorizOutlined } from "@mui/icons-material";
-import { Box, BoxProps, Button, ButtonProps, Dropdown, DropdownProps, Menu, MenuButton, MenuItem, Option, Select, Typography } from "@mui/joy";
-import { InstrumentNote, midiNoteMap } from "../../util/midi";
-import { SightReadingDisplay } from "./SightReadingDisplay";
-import { VirtualKeyboard } from "../../components/VirtualKeyboard";
+import { Footer, ConfigHeader, Header } from "./HeaderFooter";
+import { StyleSheet } from "../../util";
+import { ReadingTest } from "./ReadingTest";
+import { InstrumentNote } from "../../util/midi";
+
+const testNotes = [
+    new InstrumentNote('C', 4),
+    new InstrumentNote('E', 4),
+    new InstrumentNote('G', 4),
+    new InstrumentNote('B', 4),
+    new InstrumentNote('D', 5),
+    new InstrumentNote('F', 5),
+    new InstrumentNote('A', 5),
+    new InstrumentNote('C', 5),
+    new InstrumentNote('E', 5),
+    new InstrumentNote('G', 5),
+    new InstrumentNote('B', 5),
+    new InstrumentNote('A', 4),
+    new InstrumentNote('F', 4),
+    new InstrumentNote('D', 4),
+    new InstrumentNote('G', 5),
+    new InstrumentNote('E', 5),
+    new InstrumentNote('C', 5),
+    new InstrumentNote('A', 4),
+    new InstrumentNote('F', 4),
+    new InstrumentNote('D', 5)
+]
+export const SightReadingPage = () => {
+    return <MainPage style={styles.container}>
+        <ConfigHeader style={styles.header} />
+        <Box style={styles.main}>
+            <Header />
+            <ReadingTest style={styles.readingTest} notes={testNotes} />
+            <Footer />
+        </Box>
+
+
+    </MainPage>
+}
 
 
 const styles:StyleSheet = {
     container: {
-        height: '100%', 
-        maxHeight: '100%', 
-        position: 'relative',
-        padding: 8, 
         display: 'grid', 
+        gridTemplateRows: 'auto 1fr', 
         gridTemplateColumns: 'auto', 
-        gridTemplateRows: '1fr 150px'
+        gap: 8
     }, 
-    moreButton: {
-        position: 'absolute',
-        right: 0, 
-        top: 0, 
-        margin: 8,
+    header: {
+        display: 'flex',
+        width: '70%', 
+        justifySelf: 'center',
+        border: 'solid lightgray', 
+        padding: 8, 
+        borderRadius: 8, 
+        justifyContent: 'space-evenly'
+    }, 
+    main: {
+        height: '100%', 
+        border: 'dotted',
+        display: 'flex',
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        gap: 8,
+    }, 
+    readingTest: {
+        width: '80%', 
+        height: '50%', 
+        border: 'solid'
     }
-}
-
-const scales = ['C' , 'C#/Db' , 'D' , 'D#/Eb' , 'E']
-const clefs = ['Treble', 'Bass', 'Grand Staff']
-
-type ConfigData = {
-    scale: string // config data
-    clef: string, 
-    noteRangeMin: InstrumentNote, 
-    noteRangeMax: InstrumentNote
-}
-
-export const SightReadingPage = () => {
-    const [configData, setConfigData] = React.useState({
-        scale: scales[0], 
-        clef: clefs[0], 
-        noteRangeMin: {key: 'C', octave: 4},
-        noteRangeMax: {key: 'C', octave: 5},
-    } as ConfigData); 
-
-    const handleConfigChange = (target: keyof ConfigData, value:any) => {
-        const tmp = Object.assign({}, configData); 
-        if(target == 'noteRangeMin' || target == 'noteRangeMax')
-            tmp[target] = value as InstrumentNote
-        else
-            tmp[target] = value
-
-        setConfigData(tmp); 
-    }
-
-    return <MainPage style={styles.container}>
-        <SRDropdown style={styles.moreButton} configData={configData} onChange={handleConfigChange} />
-        <SightReadingDisplay />
-        <VirtualKeyboard />
-    </MainPage>
-}
-
-const SRDropdown = (props:{style:React.CSSProperties, configData:ConfigData, onChange:(target:keyof ConfigData, value:string)=>void}) => {
-    const [open, setOpen] = React.useState(false); 
-    const selfRef = React.useRef<HTMLButtonElement>(null); 
-
-    const handleRemainOpen = (e: React.SyntheticEvent | null) => {
-        if(!e) return; 
-        console.log(e)
-        // console.log(selfRef)
-
-        e.preventDefault(); 
-        setOpen(e.type != 'blur');
-    }
-
-    const handleSelectChange = (target:keyof ConfigData, e:React.SyntheticEvent | null) => {
-        if(!e || !e.currentTarget || !e.currentTarget.textContent) return; 
-        props.onChange(target, e.currentTarget.textContent)
-    }
-
-    const handleButtonSelect = (target:keyof ConfigData, value:any) => {
-        props.onChange(target, value); 
-    }
-
-    return <Dropdown>
-        <MenuButton variant="solid" ref={selfRef} style={props.style}><MoreHorizOutlined /></MenuButton>
-        <Menu>
-            <Typography>Scales</Typography>
-                
-            <Box>
-                {scales.map(i => <Button onClick={(e) => handleButtonSelect('scale', i)} variant={props.configData.scale == i ? 'solid' : 'outlined'} key={i}>{i}</Button>)}
-            </Box>
-
-            <Typography>Clefs</Typography>
-
-            <Box>
-                {clefs.map(i => <Button onClick={(e) => handleButtonSelect('clef', i)} variant={props.configData.clef == i ? 'solid' : 'outlined'} key={i}>{i}</Button>)}
-            </Box>
-
-            <Typography>Note Range</Typography>
-            <Box>
-                <Typography>Min</Typography>
-                <Select value={props.configData.noteRangeMin} onChange={e => handleSelectChange('noteRangeMin', e)}>
-                    {Object.values(midiNoteMap).map(n => <Option key={n.key + n.octave} value={n.key + n.octave}  label={n.key + n.octave}/>)}
-                </Select>
-                <Typography>Max</Typography>
-                <Select value={props.configData.noteRangeMax} onChange={e => handleSelectChange('noteRangeMax', e)}>
-                    {Object.values(midiNoteMap).map(n => <Option key={n.key + n.octave} value={n.key + n.octave}  label={n.key + n.octave}/>)}
-                </Select>
-            </Box>
-
-            <Button children={"Reset"} />
-        </Menu>
-    </Dropdown>
 }

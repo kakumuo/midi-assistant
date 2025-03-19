@@ -13,6 +13,7 @@ import { TempoView } from "./TempoView";
 import { ScaleView } from "./ScaleView";
 import { InstrumentNote } from "../../util/midi";
 import { ChordText } from "./ChordText";
+import { ApplicationContext } from "../../App";
 
 const keyOptions: InstrumentNote['key'][] = [
     "C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"
@@ -26,6 +27,7 @@ const modeOptions:string[] = [
 export const PracticePage = () => {
     const [modeOption, setModeOption] = React.useState(modeOptions[0]);
     const [keyOption, setKeyOption] = React.useState(keyOptions[0]);
+    const {appConfig, setAppConfig} = React.useContext(ApplicationContext)
 
     return <MainPage style={styles.container}>
         {/* Header */}
@@ -47,7 +49,10 @@ export const PracticePage = () => {
             <CoFDisplay style={{gridArea: '1 / 2 / span 3 / span 1', aspectRatio: '1/1', width: '500px', justifySelf: 'center', alignSelf: 'center'}} rootKey={keyOption} mode={modeOption}/>
         </Box>
 
-        <VirtualKeyboard style={{height: 'auto'}} minNote={new InstrumentNote('C', 3)} maxNote={new InstrumentNote('C', 6)} />
+        {
+            appConfig.practice.showKeyboard && 
+            <VirtualKeyboard style={{height: 'auto'}} minNote={appConfig.practice.keyboardMinNote} maxNote={appConfig.practice.keyboardMaxNote} />
+        }
     </MainPage>
 }
 

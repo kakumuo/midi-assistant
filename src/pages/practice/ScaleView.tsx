@@ -146,7 +146,7 @@ export const ScaleView = (props:{style?:React.CSSProperties, clefType?:'bass'|'t
                     <g>
                         <ellipse key={i} cx={noteX} cy={noteY} 
                             rx={noteRx} ry={noteRy} stroke='black' 
-                            strokeWidth={1} fill={noteColors.noteColors[n.key]} 
+                            strokeWidth={1} fill={noteColors[n.key]} 
                             style={{transform: 'rotate(-30deg)', transformOrigin: `${noteX}px ${noteY}px`}}>
                         </ellipse>
                         <text x={noteX} y={noteY} textAnchor="middle" dominantBaseline={'middle'} fontSize={noteRx} fontWeight={'bold'} 
