@@ -2,6 +2,8 @@ import React from "react";
 import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEvent } from "../../util/midi";
 import { InstrumentInputContext } from "../../util/midi/InputManager";
 import shadows from "@mui/material/styles/shadows";
+import { generateTest } from "./generateTest";
+import { ArrowUpward, NoteSharp } from "@mui/icons-material";
 
 
 const noteBarList:InstrumentNote[] = [
@@ -46,17 +48,19 @@ const cleffRange: {start: InstrumentNote, end:InstrumentNote} = {
     end:    new InstrumentNote('G',2)
 }
 
-
 const BAR_WIDTH = 2; 
-export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentNote[]}) => {
+export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:InstrumentNote[]}) => {
     const ref = React.useRef<SVGSVGElement>(null); 
     const [containerDim, setCotnainerDim] = React.useState({width: 0, height: 0});
-    const [testNotes, setTestNotes] = React.useState(props.notes); 
-    const {inputManager} = React.useContext(InstrumentInputContext)
+    const [testNotes, setTestNotes] = React.useState<InstrumentNote[]>([]); 
+    const {inputManager} = React.useContext(InstrumentInputContext); 
+
+    React.useEffect(() => {
+        setTestNotes(props.testNotes)
+    }, [props.testNotes])
 
     // Input Manager
     React.useEffect(() => {
-
         const handleInput = (ev:InstrumentEvent) => {
             if(ev.type != InstrumentEventType.NOTE || !ev.isPressed) return; 
             const e = ev as InstrumentNoteEvent; 
@@ -86,9 +90,7 @@ export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentN
         const observer = new ResizeObserver(handleResize); 
         observer.observe(ref.current); 
 
-        return () => {
-            observer.disconnect(); 
-        }
+        return () => observer.disconnect(); 
     }, [ref]); 
 
     const {notes, bars, cursor, clef} = React.useMemo(() => {
@@ -116,8 +118,18 @@ export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentN
             curY += barSpacing; 
         }
 
+        // add clef
+        const clefHeight = noteBarPosMap[InstrumentNote.getValue('C',4)] - noteBarPosMap[InstrumentNote.getValue('B',5)]
+        + barSpacing + BAR_WIDTH * 2; 
+        const clefYPos = noteBarPosMap[InstrumentNote.getValue('B',5)] + BAR_WIDTH * 2; 
+        clef.push(
+            <image href="treble.webp" y={clefYPos} x={PADDING} height={clefHeight} />
+        )
+
+
+        // add notes
         const NOTE_HORI_SPACING = 64; 
-        const CLEF_OFFSET = 100; 
+        const CLEF_OFFSET = 200; 
         let curX = CLEF_OFFSET; 
         const noteRx = barSpacing; 
         const noteRy = noteRx * .75; 
@@ -125,7 +137,8 @@ export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentN
         for(let i = 0; i < testNotes.length; i++){
             const curNote = testNotes[i]; 
 
-            const curY = noteBarPosMap[curNote.valueOf()]
+            const normNote = InstrumentNote.fromNote(curNote.toString().replace("#", ""))
+            const curY = noteBarPosMap[normNote.valueOf()]
             
             const group = []
             group.push(
@@ -135,32 +148,39 @@ export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentN
                 />
             )
 
+            if(curNote.key.indexOf("#") > 0){
+                group.push(
+                    <text x={curX - (noteRx * 1.5)} y={curY} children="#" fontSize={noteRx * 1.5}  
+                        fontWeight={'bold'}
+                        textAnchor="middle" dominantBaseline={'middle'} 
+                    />
+                )
+            }
+
             group.push(
                 <text x={curX} y={curY} textAnchor="middle" dominantBaseline={'middle'} 
                     fontSize={noteRy} fontWeight={'bold'} 
-                    style={{mixBlendMode: 'difference', filter: 'grayscale(100%) invert(1)'}}
-                    children={curNote.toString()}
+                    children={normNote.key}
                 />
             )
 
             // add lines for out of staff notes
-            const cVal = curNote.valueOf(); 
+            const cVal = normNote.valueOf(); // use note normalized to get around accidentals
             const tStartVal = trebleRange.start.valueOf(); 
             const tEndVal = trebleRange.end.valueOf(); 
             if((cVal < tEndVal && tEndVal - cVal > 2) || (cVal > tStartVal && cVal - tStartVal > 2) ) {
                 let lineY = curY;
                 
                 if(cVal > tStartVal && ((cVal - tStartVal) / 2) % 2 != 0){
-                    console.log(curNote.toString(), cVal, trebleRange.start.valueOf(), trebleRange.start.toString())
                     lineY += noteRx; 
                 }
 
                 bars.push(
                     <line x1={curX - (noteRx * 2)} x2={curX + (noteRx * 2)} y1={lineY} y2={lineY} />
-                )
+                ); 
             }
 
-            notes.push(<g>{group}</g>)
+            notes.push(<g key={i}>{group}</g>)
             curX += NOTE_HORI_SPACING + noteRx;
         }
         
@@ -172,9 +192,6 @@ export const ReadingTest = (props:{style?:React.CSSProperties, notes:InstrumentN
             {bars}
         </g>
         {notes}
-        {/* 
-        {bars}
-        {cursor}
-        {clef} */}
+        {clef}
     </svg>
 }

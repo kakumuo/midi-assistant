@@ -56,10 +56,6 @@ export const App = () => {
         }
     })
 
-    React.useEffect(() => {
-        console.log(appConfig); 
-    }, [appConfig])
-
     const navOptions:NavigationOption[] = [
         {label: "Sight Reading", target: <SightReadingPage />},
         {label: "Practice", target: <PracticePage />},

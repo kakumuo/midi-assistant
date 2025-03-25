@@ -1,4 +1,5 @@
 export class InstrumentNote {
+    static keysList = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; 
     key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = 'C'; 
     octave: number = 0; 
     velocity?: number = 0
@@ -6,6 +7,14 @@ export class InstrumentNote {
     constructor(key:"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B", octave:number){
         this.key = key; 
         this.octave = octave; 
+    }
+
+    static fromValue(value:number) {
+        const octave = Math.floor(value / 12);
+        const keyIndex = value % 12;
+        const key = InstrumentNote.keysList[keyIndex] as InstrumentNote['key'];
+        
+        return new InstrumentNote(key, octave);
     }
 
     static fromNote(note:string){
@@ -37,16 +46,12 @@ export class InstrumentNote {
     }
 
     public valueOf() {
-        const keys = ["C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"]
-
-        return keys.indexOf(this.key) + (this.octave * 12); 
+        return InstrumentNote.keysList.indexOf(this.key) + (this.octave * 12); 
     }
 
 
     static getValue(key:InstrumentNote['key'], octave:number) {
-        const keys = ["C" , "C#" , "D" , "D#" , "E" , "F" , "F#" , "G" , "G#" , "A" , "A#" , "B"]
-
-        return keys.indexOf(key) + (octave * 12); 
+        return InstrumentNote.keysList.indexOf(key) + (octave * 12); 
     }
 
     public toString(){

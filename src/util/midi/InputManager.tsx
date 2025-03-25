@@ -35,6 +35,7 @@ export class InstrumentInputManager {
     private inactiveNotesMap: Record<string, Set<InstrumentNote>>; 
     activeNotes: Set<InstrumentNote>; 
     private sustain:boolean = false; 
+    private isEnabled:boolean = true; 
 
     constructor(){
         this.activeNotesMap = {};
@@ -160,7 +161,8 @@ export class InstrumentInputManager {
     }
 
     private handleKBDInput(isPressed: boolean, e: globalThis.KeyboardEvent) {
-        if ((!kbdNoteMap.hasOwnProperty(e.key) && !kbdKeyMap.hasOwnProperty(e.key)) || e.repeat) return;
+        if ((!kbdNoteMap.hasOwnProperty(e.key) && !kbdKeyMap.hasOwnProperty(e.key)) || e.repeat || !this.isEnabled) return;
+
 
         e.preventDefault();
 
@@ -214,6 +216,10 @@ export class InstrumentInputManager {
 
     private dispatchEvent(type: InstrumentEventType, e:InstrumentEvent){
         this.listeners[type].forEach(l => l(e)); 
+    }
+
+    enableInput(enable:boolean) {
+        this.isEnabled = enable; 
     }
 }
 
