@@ -90,3 +90,9 @@ export type NoteResult = {
     hitTiming:number, 
     hitVelocity:number, 
 }
+
+
+// Test Display
+export type StaffDisplayRange = {
+    bars:InstrumentNote[], defaultMin:InstrumentNote, defaultMax:InstrumentNote
+}

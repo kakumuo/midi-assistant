@@ -9,6 +9,11 @@ export class InstrumentNote {
         this.octave = octave; 
     }
 
+    static isAccidental(value: number): boolean {
+        const keyIndex = value % 12;
+        return keyIndex === 1 || keyIndex === 3 || keyIndex === 6 || keyIndex === 8 || keyIndex === 10;
+    }
+
     static fromValue(value:number) {
         const octave = Math.floor(value / 12);
         const keyIndex = value % 12;

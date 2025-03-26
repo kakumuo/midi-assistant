@@ -36,7 +36,7 @@ const sampleConfig:{[key:string]: TestConfig} = {
         showIncorrectNotes: false, 
         showNoteColors: false, 
         showNoteNames: false, 
-        staff: "Treble", 
+        staff: "Grand", 
         timeSignature: [4, 4], 
         waitForCorrectNotes: false, 
         showMetronome: true, 

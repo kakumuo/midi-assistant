@@ -28,7 +28,7 @@ export const calculateResultData = (res:NoteResult[]) => {
             noteMisses.push(curRes.missedNotes.length); 
             noteTempos.push(curTempo); 
             avgTempo += curTempo; 
-            avgVelocity += curRes.hitVelocity; // Accumulate velocities for avgVelocity calculation
+            avgVelocity += curRes.hitVelocity;
 
             numMisses += curRes.missedNotes.length; 
         })
@@ -39,7 +39,7 @@ export const calculateResultData = (res:NoteResult[]) => {
         accuracy = n / (n + numMisses); 
         accuracy = Math.round(accuracy * 10000) / 100
         avgTempo /= Math.max(n - 1, 1); 
-        avgVelocity /= n; // Calculate avgVelocity
+        avgVelocity /= n;
 
     }
 

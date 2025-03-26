@@ -4,7 +4,7 @@ import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputMan
 import shadows from "@mui/material/styles/shadows";
 import { generateTest } from "./generateTest";
 import { ArrowUpward, NoteSharp } from "@mui/icons-material";
-import { NoteResult, TestConfig } from "./types";
+import { NoteResult, StaffDisplayRange, TestConfig } from "./types";
 import { useNoteColors } from "../../App";
 
 
@@ -40,14 +40,28 @@ const noteBarList:InstrumentNote[] = [
     // new InstrumentNote('C', 2),
 ]
 
-const trebleRange: {start: InstrumentNote, end:InstrumentNote} = {
-    start:  new InstrumentNote('F',5), 
-    end:    new InstrumentNote('E',4)
+const trebleRange: StaffDisplayRange = {
+    bars: [
+        new InstrumentNote('F', 5),
+        new InstrumentNote('D', 5),
+        new InstrumentNote('B', 4),
+        new InstrumentNote('G', 4),
+        new InstrumentNote('E', 4),
+    ],
+    defaultMax: new InstrumentNote('B', 5),
+    defaultMin: new InstrumentNote('C', 4),
 }
 
-const cleffRange: {start: InstrumentNote, end:InstrumentNote} = {
-    start:  new InstrumentNote('A',3), 
-    end:    new InstrumentNote('G',2)
+const bassRange: StaffDisplayRange = {
+    bars: [
+        new InstrumentNote('A', 3),
+        new InstrumentNote('F', 3),
+        new InstrumentNote('D', 3),
+        new InstrumentNote('B', 2),
+        new InstrumentNote('G', 2),
+    ],
+    defaultMax: new InstrumentNote('E', 4),
+    defaultMin: new InstrumentNote('E', 2),
 }
 
 const BAR_WIDTH = 2; 
@@ -119,6 +133,30 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
         return () => observer.disconnect(); 
     }, [ref]); 
 
+    const barList = React.useMemo<InstrumentNote[]>(() => {
+        const res:InstrumentNote[] = []; 
+        let [start, end] = [0, 0]
+
+        if(props.testConfig.staff == 'Bass'){
+            start = bassRange.defaultMax.valueOf()
+            end = bassRange.defaultMin.valueOf()
+        } else if (props.testConfig.staff == 'Treble'){
+            start = trebleRange.defaultMax.valueOf(); 
+            end = trebleRange.defaultMin.valueOf(); 
+        }else {
+            start = trebleRange.defaultMax.valueOf(); 
+            end = bassRange.defaultMin.valueOf(); 
+        }
+
+        for(let i = start; i >= end; i--){
+            if(!InstrumentNote.isAccidental(i)) res.push(InstrumentNote.fromValue(i)); 
+        }
+
+        console.log(res)
+
+        return res; 
+    }, [props.testConfig])
+
     const {notes, bars, cursor, clef} = React.useMemo(() => {
         const notes:React.JSX.Element[] = [];
         const bars:React.JSX.Element[] = [];
@@ -126,32 +164,57 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
         const clef:React.JSX.Element[] = [];   
         
         const PADDING = 32
+        const STAFF_SPACING = 10
         const {width, height} = containerDim; 
-        const numLines = noteBarList.length; 
-        const barSpacing = (height - (PADDING * 2) - (BAR_WIDTH * numLines)) / (numLines - 1);
+        const numLines = barList.length; 
+        const barSpacing = (height - (PADDING * 2) - (BAR_WIDTH * numLines) - (props.testConfig.staff == 'Grand' ? STAFF_SPACING : 0)) / (numLines - 1);
         let curY = PADDING
         const noteBarPosMap:{[key: number]: number} = {}
 
         for(let i = 0; i < numLines; i++){
-            const curNoteBar = noteBarList[i]; 
+            const curNoteBar = barList[i]; 
 
-            if(curNoteBar.valueOf() >= trebleRange.end.valueOf() && curNoteBar.valueOf() <= trebleRange.start.valueOf() && i % 2)
+            const isInTrebleStaff = trebleRange.bars.findIndex(b => b.valueOf() == curNoteBar.valueOf()) != -1
+                && props.testConfig.staff != 'Bass'
+            const isInBassStaff = bassRange.bars.findIndex(b => b.valueOf() == curNoteBar.valueOf()) != -1 && 
+                props.testConfig.staff != 'Treble'
+
+            if(isInBassStaff)
+            console.log(curNoteBar)
+
+            if(isInTrebleStaff || isInBassStaff)
                 bars.push(
                     <line key={'bar-' + curNoteBar.toString()} x1={0} x2={width} y1={curY} y2={curY}/>
                 )
             
             noteBarPosMap[curNoteBar.valueOf()] = curY; 
+
+            if(props.testConfig.staff == 'Grand' && curNoteBar.equals(new InstrumentNote('C', 4)))
+                curY += STAFF_SPACING
             curY += barSpacing; 
         }
 
-        // add clef
-        const clefHeight = noteBarPosMap[InstrumentNote.getValue('C',4)] - noteBarPosMap[InstrumentNote.getValue('B',5)]
-        + barSpacing + BAR_WIDTH * 2; 
-        const clefYPos = noteBarPosMap[InstrumentNote.getValue('B',5)] + BAR_WIDTH * 2; 
-        clef.push(
-            <image href="treble.webp" y={clefYPos} x={PADDING} height={clefHeight} />
-        )
+        if(props.testConfig.staff != 'Bass'){
+            // add clef
+            const clefHeight = noteBarPosMap[InstrumentNote.getValue('C',4)] - noteBarPosMap[InstrumentNote.getValue('B',5)]
+            + barSpacing + BAR_WIDTH * 2; 
+            const clefYPos = noteBarPosMap[InstrumentNote.getValue('B',5)] + BAR_WIDTH * 2; 
 
+            clef.push(
+                <image href="treble.webp" y={clefYPos} x={PADDING} height={clefHeight} />
+            )
+        }
+
+        if(props.testConfig.staff != 'Treble') {
+            // add clef
+            const clefHeight = noteBarPosMap[InstrumentNote.getValue('C',3)] - noteBarPosMap[InstrumentNote.getValue('A',3)]
+            + barSpacing + BAR_WIDTH * 2; 
+            const clefYPos = noteBarPosMap[InstrumentNote.getValue('A',3)] + BAR_WIDTH * 2; 
+
+            clef.push(
+                <image href="bass.png" y={clefYPos} x={PADDING} height={clefHeight} />
+            )
+        }
 
         // add notes
         const NOTE_HORI_SPACING = 64; 
@@ -199,13 +262,18 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             )
 
             // add lines for out of staff notes
-            const cVal = normNote.valueOf(); // use note normalized to get around accidentals
-            const tStartVal = trebleRange.start.valueOf(); 
-            const tEndVal = trebleRange.end.valueOf(); 
-            if((cVal < tEndVal && tEndVal - cVal > 2) || (cVal > tStartVal && cVal - tStartVal > 2) ) {
+            const normNoteVal = normNote.valueOf(); // use note normalized to get around accidentals
+            const tStartVal = trebleRange.bars[0].valueOf(); 
+            const tEndVal = trebleRange.bars[4].valueOf(); 
+            const bStartVal = bassRange.bars[0].valueOf(); 
+            const bEndVal = bassRange.bars[4].valueOf(); 
+            if(
+                (normNoteVal < tEndVal && tEndVal - normNoteVal > 2) || (normNoteVal > tStartVal && normNoteVal - tStartVal > 2)
+                || (normNoteVal < bEndVal && bEndVal - normNoteVal > 2) || (normNoteVal > bStartVal && normNoteVal - bStartVal > 2)
+            ) {
                 let lineY = curY;
                 
-                if(cVal > tStartVal && ((cVal - tStartVal) / 2) % 2 != 0){
+                if(normNoteVal > tStartVal && ((normNoteVal - tStartVal) / 2) % 2 != 0){
                     lineY += noteRx; 
                 }
 

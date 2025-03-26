@@ -133,11 +133,13 @@ export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, o
                     const [minVal, maxVal] = configs[curConfigId].noteRange
                     input = <>
                         <Select value={minVal} onChange={(_, v) => v && setFormData('noteRange', [v, maxVal], "note,note")}>
-                            {virtualKeyboardNotes.filter(n => n.valueOf() < maxVal)
+                            {virtualKeyboardNotes
+                            .filter(n => n.valueOf() <= maxVal)
                             .map(n => <Option key={n.valueOf()} value={n.valueOf()}>{n.toString()}</Option>)}
                         </Select>
                         <Select value={maxVal} onChange={(_, v) => v && setFormData('noteRange', [minVal, v], "note,note")}>
-                            {virtualKeyboardNotes.filter(n => n.valueOf() > minVal)
+                            {virtualKeyboardNotes
+                            .filter(n => n.valueOf() >= minVal)
                             .map(n => <Option key={n.valueOf()} value={n.valueOf()}>{n.toString()}</Option>)}
                         </Select>
                     </>
