@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, colors, Dropdown, IconButton, ListDivider, Menu, MenuButton, MenuItem, Typography } from "@mui/joy";
-import { StyleSheet } from "../../util";
+import { formatDurationString, StyleSheet } from "../../util";
 import { LockClockOutlined, MoreTime, PlusOne, Timer, Timer10, Timer3SelectSharp, TimerOutlined } from "@mui/icons-material";
 import { duration } from "@mui/material";
 import Color from "colorjs.io";
@@ -95,15 +95,7 @@ const SessionDurationIndicator = () => {
     
     const displayText = React.useMemo(() => {
         const target = indicatorState == IndicatorState.DURATION ? duration : timerRemaining; 
-
-        const hours = Math.floor(target / 3600);
-        const minutes = Math.floor((target % 3600) / 60);
-        const seconds = target % 60;
-        let result = '';
-        if (hours > 0) result += `${hours}h `;
-        if (minutes > 0) result += `${minutes}m `;
-        result += `${seconds}s`;
-        return (indicatorState == IndicatorState.TIMER ? "Timer: " : "Duration: ") + result;
+        return (indicatorState == IndicatorState.TIMER ? "Timer: " : "Duration: ") + formatDurationString(target);
     }, [duration, timerRemaining]); 
      
 

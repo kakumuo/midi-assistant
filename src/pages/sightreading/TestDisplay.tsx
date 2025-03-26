@@ -1,9 +1,11 @@
 import React from "react";
 import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEvent } from "../../util/midi";
-import { InstrumentInputContext } from "../../util/midi/InputManager";
+import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputManager";
 import shadows from "@mui/material/styles/shadows";
 import { generateTest } from "./generateTest";
 import { ArrowUpward, NoteSharp } from "@mui/icons-material";
+import { NoteResult, TestConfig } from "./types";
+import { useNoteColors } from "../../App";
 
 
 const noteBarList:InstrumentNote[] = [
@@ -49,34 +51,58 @@ const cleffRange: {start: InstrumentNote, end:InstrumentNote} = {
 }
 
 const BAR_WIDTH = 2; 
-export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:InstrumentNote[]}) => {
+export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:InstrumentNote[], testConfig:TestConfig, onTestComplete:(results:NoteResult[])=>void}) => {
     const ref = React.useRef<SVGSVGElement>(null); 
+    const noteColors = useNoteColors()
+    const activeNotes = useActiveNotes(); 
     const [containerDim, setCotnainerDim] = React.useState({width: 0, height: 0});
     const [testNotes, setTestNotes] = React.useState<InstrumentNote[]>([]); 
+    const [noteResult, setNoteResult] = React.useState<NoteResult[]>([]); 
+    const [curNoteI, setCurNoteI] = React.useState<number>(0); 
+    const [testStartTS, setTestStartTS] = React.useState(-1)
     const {inputManager} = React.useContext(InstrumentInputContext); 
 
     React.useEffect(() => {
-        setTestNotes(props.testNotes)
-    }, [props.testNotes])
+        setTestNotes(props.testNotes);
+        setNoteResult(props.testNotes.map(n => ({
+            hitTiming: 0, 
+            hitVelocity: 0, 
+            missedNotes: [], 
+            startAttemptTiming: 0, 
+            targetNotes: [n.valueOf()]
+        } as NoteResult)))
+        setTestStartTS(Date.now())
+        setCurNoteI(0)
+    }, [props.testNotes]); 
+
 
     // Input Manager
     React.useEffect(() => {
         const handleInput = (ev:InstrumentEvent) => {
             if(ev.type != InstrumentEventType.NOTE || !ev.isPressed) return; 
             const e = ev as InstrumentNoteEvent; 
-
-            setTestNotes(t => {
-                if(t[0].valueOf() == e.note.valueOf())
-                    return t.slice(1); 
             
-                return t; 
-            })
+            const hitNote = testNotes[curNoteI].valueOf() == e.note.valueOf()
+            const curI = curNoteI 
+            const tmpResults = [...noteResult]; 
+        
+            if(tmpResults[curI].startAttemptTiming == 0) tmpResults[curI].startAttemptTiming = Date.now()
+            if(!hitNote) tmpResults[curI].missedNotes.push(e.note.valueOf()); 
+            else {
+                tmpResults[curI].hitTiming = Date.now(); 
+                tmpResults[curI].hitVelocity = e.velocity; 
+            }
+
+            if(curNoteI == 0) setTestStartTS(ts => ts == -1 ? Date.now() : ts)
+
+            setCurNoteI(i => i + (hitNote ? 1 : 0)); 
+            if(curI == testNotes.length - 1 && hitNote) props.onTestComplete(tmpResults)
         }
 
         inputManager.addListener(InstrumentEventType.NOTE, handleInput)
 
         return () => inputManager.removeListener(InstrumentEventType.NOTE, handleInput)
-    }, [inputManager])
+    }, [inputManager, testNotes, curNoteI])
 
     // Resize Handler
     React.useEffect(() => {
@@ -134,16 +160,22 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
         const noteRx = barSpacing; 
         const noteRy = noteRx * .75; 
 
-        for(let i = 0; i < testNotes.length; i++){
-            const curNote = testNotes[i]; 
+        const remNotes = testNotes.slice(curNoteI); 
+        for(let i = 0; i < remNotes.length; i++){
+            const curNote = remNotes[i]; 
 
             const normNote = InstrumentNote.fromNote(curNote.toString().replace("#", ""))
             const curY = noteBarPosMap[normNote.valueOf()]
             
             const group = []
+            let targetColor = 'black'; 
+
+            if(props.testConfig.showNoteColors)
+                targetColor = noteColors[curNote.key]; 
+
             group.push(
                 <ellipse cx={curX} cy={curY} rx={noteRx} ry={noteRy} 
-                    fill="white" stroke="black" strokeWidth={2}
+                    fill="white" stroke={targetColor} strokeWidth={2}
                     style={{transform: 'rotate(-15deg)', transformOrigin: `${curX}px ${curY}px`}}
                 />
             )
@@ -152,6 +184,7 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
                 group.push(
                     <text x={curX - (noteRx * 1.5)} y={curY} children="#" fontSize={noteRx * 1.5}  
                         fontWeight={'bold'}
+                        fill={targetColor}
                         textAnchor="middle" dominantBaseline={'middle'} 
                     />
                 )
@@ -160,6 +193,7 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             group.push(
                 <text x={curX} y={curY} textAnchor="middle" dominantBaseline={'middle'} 
                     fontSize={noteRy} fontWeight={'bold'} 
+                    fill={targetColor}
                     children={normNote.key}
                 />
             )
@@ -185,7 +219,7 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
         }
         
         return {notes, bars, cursor, clef}
-    }, [containerDim, testNotes])
+    }, [containerDim, curNoteI, testNotes])
 
     return <svg ref={ref} style={props.style}>
         <g stroke="black" strokeWidth={BAR_WIDTH}>

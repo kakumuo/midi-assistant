@@ -30,29 +30,47 @@ export type Staff = 'Grand' | 'Treble' | 'Bass'
 export type TestConfig = {
     name                    : string
     uuid                    : string
-    useFlats                : boolean
-    useSharps               : boolean
+    // Basic settings
     staff                   : Staff
     key                     : InstrumentNote['key']
     scale                   : Scale
+    useFlats                : boolean
+    useSharps               : boolean
+    timeSignature           : [number, number]
+    
+    // Note range and display settings
     noteRange               : [number, number]
     noteIntervalRange       : [number, number]
-    tempoRange              : [number, number]
-    velocityRange           : [number, number]
     useChords               : boolean
     harmonicNotesRange      : [number, number]
-    maxIncorrectNotes       : number
+    
+    // Tempo and timing settings
+    tempoRange              : [number, number]
+    velocityRange           : [number, number]
     duration                : number
+    
+    // Test configuration
     numNotes                : number
-    noteSequence            : number[] // parse from standard notation
-    showIncorrectNotes      : boolean
-    waitForCorrectNotes     : boolean
-    timeSignature           : [number, number]
     lookaheadNotes          : number
-    showNoteNames           : boolean
+    maxIncorrectNotes       : number
+    noteSequence            : number[] // parse from standard notation
+    
+    // Display options
+    showIncorrectNotes      : boolean
     showNoteColors          : boolean
+    showNoteNames           : boolean
+    waitForCorrectNotes     : boolean
+    showMetronome           : boolean
+    metronome               : [number, number]
+    
+    createdDate             : number
+    updatedDate             : number
 }
 
+/**
+ * TODO: may want to add grouping type for data elements, 
+ * will allow for records to be grouped visually, data is still kept in a flat style. 
+ */
 export type FormData = {
     field: keyof TestConfig, 
     label: string, 
@@ -65,5 +83,10 @@ export type FormData = {
     dataType: 'group'
 }
 
-// TODO: add grouping for form data
-
+export type NoteResult = {
+    targetNotes: number[], //note values
+    missedNotes: number[], //note values
+    startAttemptTiming:number, 
+    hitTiming:number, 
+    hitVelocity:number, 
+}

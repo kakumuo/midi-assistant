@@ -5,23 +5,24 @@ import { TestDisplay } from "./TestDisplay";
 import { InstrumentNote } from "../../util/midi";
 import React from "react";
 import { generateTest } from "./generateTest";
-import { TestConfig } from "./types";
+import { NoteResult, TestConfig } from "./types";
 import { VirtualKeyboard } from "../../components/VirtualKeyboard";
-import { RefreshOutlined, SettingsOutlined } from "@mui/icons-material";
+import { ArrowForwardOutlined, ArrowLeftOutlined, ArrowRightOutlined, RefreshOutlined, SettingsOutlined } from "@mui/icons-material";
 import { SettingsModal } from "./SettingsModal";
 import { InstrumentInputContext } from "../../util/midi/InputManager";
-import { v4 as uuidv4 } from "uuid";
+import { ResultsDisplay } from "./ResultsDisplay";
 
 
+// Sample test result data
 const sampleConfig:{[key:string]: TestConfig} = {
     "123": {
         name: "Sample Test", 
         uuid: "123",
         useFlats: false, 
         useSharps: false, 
-        numNotes: 25,
+        numNotes: 5,
         key: 'C', 
-        noteRange: [new InstrumentNote('C', 4).valueOf(), new InstrumentNote('F', 5).valueOf()],
+        noteRange: [new InstrumentNote('C', 4).valueOf(), new InstrumentNote('C',4).valueOf()],
         duration: 0, 
         lookaheadNotes: 0, 
         maxIncorrectNotes: 0, 
@@ -37,14 +38,19 @@ const sampleConfig:{[key:string]: TestConfig} = {
         showNoteNames: false, 
         staff: "Treble", 
         timeSignature: [4, 4], 
-        waitForCorrectNotes: false
+        waitForCorrectNotes: false, 
+        showMetronome: true, 
+        metronome: [120, 4],
+
+        createdDate: Date.now(),
+        updatedDate: Date.now(),
     }, 
     "456": {
         name: "Other Test", 
         uuid: "456",
         useFlats: false, 
         useSharps: false, 
-        numNotes: 25,
+        numNotes: 10,
         key: 'C', 
         noteRange: [new InstrumentNote('C', 4).valueOf(), new InstrumentNote('F', 5).valueOf()],
         duration: 0, 
@@ -62,7 +68,11 @@ const sampleConfig:{[key:string]: TestConfig} = {
         showNoteNames: false, 
         staff: "Treble", 
         timeSignature: [4, 4], 
-        waitForCorrectNotes: false
+        waitForCorrectNotes: false, 
+        showMetronome: true, 
+        metronome: [120, 4],
+        createdDate: Date.now(),
+        updatedDate: Date.now(),
     }
 }
 
@@ -75,18 +85,37 @@ export const SightreadingContext = React.createContext<{
 
 export const SightReadingPage = () => {
     const [testNotes, setTestNotes] = React.useState<InstrumentNote[]>([]); 
+
+    // results
+    const [showResults, setShowResults] = React.useState<boolean>(false); 
+    const [noteResults, setNoteResults] = React.useState<NoteResult[]>([]); 
+
     const [showSettings, setShowSettings] = React.useState<boolean>(false); 
     const [configs, setConfigs] = React.useState<{[key:string]: TestConfig}>(sampleConfig)
     const [curConfigId, setCurConfigId] = React.useState(Object.keys(sampleConfig)[0]); 
     const {inputManager} = React.useContext(InstrumentInputContext); 
 
-    React.useEffect(() => {
+    const handleGenerateTest = () => {
         setTestNotes(generateTest(configs[curConfigId])); 
-    }, [curConfigId]); 
+        setShowResults(false); 
+    }
+    
+    const handleResetTest = () => {
+
+    }
+
+    React.useEffect(() => {
+        handleGenerateTest(); 
+    }, [curConfigId, configs[curConfigId].updatedDate]); 
 
     const handleShowSettings = (show:boolean) => {
         inputManager.enableInput(!show); 
         setShowSettings(show)
+    }
+
+    const handleTestComplete = (results:NoteResult[]) => {
+        setShowResults(true); 
+        setNoteResults(results); 
     }
     
     return (
@@ -102,11 +131,15 @@ export const SightReadingPage = () => {
                             <SettingsModal open={showSettings} onClose={() => handleShowSettings(false)} />
                         </Box>
 
-                        <TestDisplay style={styles.readingTest} testNotes={testNotes} />
+                        {
+                            showResults ?
+                            <ResultsDisplay style={styles.testContent} results={noteResults} /> : 
+                            <TestDisplay style={styles.testContent} testNotes={testNotes} testConfig={configs[curConfigId]} onTestComplete={handleTestComplete}/>
+                        }
 
-                        {/* Footer */}
                         <Box sx={styles.footer}>
-                            <IconButton children={<RefreshOutlined />} />
+                            <IconButton onClick={handleResetTest} children={<ArrowForwardOutlined />} />
+                            <IconButton onClick={handleGenerateTest} children={<RefreshOutlined />} />
                         </Box>
                     </Box>
                     <VirtualKeyboard style={{height: '100px'}} minNote={InstrumentNote.fromValue(configs[curConfigId].noteRange[0])} maxNote={InstrumentNote.fromValue(configs[curConfigId].noteRange[1])} />
@@ -139,7 +172,7 @@ const styles:StyleSheet = {
         justifyContent: 'center', 
         gap: 8,
     }, 
-    readingTest: {
+    testContent: {
         width: '80%', 
         height: '50%', 
         border: 'solid'

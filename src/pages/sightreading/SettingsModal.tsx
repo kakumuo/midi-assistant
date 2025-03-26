@@ -17,16 +17,16 @@ const settingsFormData:FormData[] = [
     {field: 'key', desc: 'The key of the scale', label: 'Key', dataType: 'key'},
     {field: 'scale', desc: 'The scale to use for the test', label: 'Scale', dataType: 'scale'},
     {field: 'timeSignature', desc: 'Time signature for the test', label: 'Time Signature', dataType: 'number,number'},
-    {field: 'useFlats', desc: 'Whether or not to use flats in the field', label: 'Use Flats', dataType: 'boolean'},
-    {field: 'useSharps', desc: 'Whether or not to use sharps in the field', label: 'Use Sharps', dataType: 'boolean'},
-    
+
     // Note range and display settings
     {field: 'noteAndRange', desc: 'Note range and display settings', label: 'Note and Range', dataType: 'group'},
     {field: 'noteRange', desc: 'Range of notes to use in the test', label: 'Note Range', dataType: 'note,note'},
-    {field: 'noteIntervalRange', desc: 'Range of intervals between consecutive notes', label: 'Note Interval Range', dataType: 'number,number'},
-    {field: 'useChords', desc: 'Whether to use chords in the test', label: 'Use Chords', dataType: 'boolean'},
+    {field: 'noteIntervalRange', desc: 'Min and Max range of intervals between consecutive notes. Leave at [0,0] for unset.', label: 'Note Interval Range', dataType: 'number,number'},
     {field: 'harmonicNotesRange', desc: 'Range of notes played simultaneously', label: 'Harmonic Notes Range', dataType: 'number,number'},
-    
+    {field: 'useChords', desc: 'Whether to use chords in the test', label: 'Use Chords', dataType: 'boolean'},
+    {field: 'useFlats', desc: 'Whether or not to use flats in the field', label: 'Use Flats', dataType: 'boolean'},
+    {field: 'useSharps', desc: 'Whether or not to use sharps in the field', label: 'Use Sharps', dataType: 'boolean'},
+
     // Tempo and timing settings
     {field: 'tempoAndTiming', desc: 'Tempo and Timing Settings', label: 'Tempo and Timing', dataType: 'group'},
     {field: 'tempoRange', desc: 'Range of tempo in BPM', label: 'Tempo Range', dataType: 'number,number'},
@@ -45,7 +45,9 @@ const settingsFormData:FormData[] = [
     {field: 'showIncorrectNotes', desc: 'Whether to show incorrect notes', label: 'Show Incorrect Notes', dataType: 'boolean'},
     {field: 'showNoteColors', desc: 'Whether to show note colors', label: 'Show Note Colors', dataType: 'boolean'},
     {field: 'showNoteNames', desc: 'Whether to show note names', label: 'Show Note Names', dataType: 'boolean'},
-    {field: 'waitForCorrectNotes', desc: 'Whether to wait for correct notes before proceeding', label: 'Wait For Correct Notes', dataType: 'boolean'}
+    {field: 'waitForCorrectNotes', desc: 'Whether to wait for correct notes before proceeding', label: 'Wait For Correct Notes', dataType: 'boolean'}, 
+    {field: 'showMetronome', desc: 'Whether to show and use the metronome during the test', label: 'Show Metronome', dataType: 'boolean'},
+    {field: 'metronome', desc: 'Metronome tempo and beats per measure', label: 'Metronome Settings', dataType: 'number,number'},
 ]
 
 const scales:Array<Scale> = ['Major', 'Minor']
@@ -55,19 +57,23 @@ export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, o
     const {configs, setConfigs, curConfigId, setCurConfigId} = React.useContext(SightreadingContext)
     const [nameEdit, setNameEdit] = React.useState(false); 
 
+    const handleClose = () => {
+        props.onClose(); 
+    }
+
     const handleNameChange = (name:string) => {
         setNameEdit(false)
         if(name.trim().length != 0) setFormData('name', name, "string")
     }
 
     const setFormData = (field:keyof TestConfig, value: any, dataType:FormData['dataType']) => {
-        const tmp = JSON.parse(JSON.stringify(configs[curConfigId])); 
+        const tmp:TestConfig = JSON.parse(JSON.stringify(configs[curConfigId])); 
         console.log(value)
-        
 
         setConfigs(c => {
             const arr = JSON.parse(JSON.stringify(c)); 
-            tmp[field] = value;
+            (tmp as any)[field] = value;
+            tmp.updatedDate = Date.now(); 
             arr[curConfigId] = tmp; 
             
             return arr; 
@@ -165,7 +171,7 @@ export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, o
         })
     }
 
-    return <Modal open={props.open} onClose={props.onClose} style={{...props.style}}>
+    return <Modal open={props.open} onClose={handleClose} style={{...props.style}}>
         <ModalDialog style={{...styles.container}}>
             <Sidebar configs={configs} curConfigId={curConfigId} onSelectConfig={(id) => setCurConfigId(id)} />
             
@@ -178,7 +184,7 @@ export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, o
                 <Box sx={styles.settingsContent}>
                     {generateFormData()}
                 </Box>
-                <Button sx={{marginLeft: 'auto'}} children={"Close"} onClick={props.onClose} />
+                <Button sx={{marginLeft: 'auto'}} children={"Close"} onClick={handleClose} />
             </Box>
         </ModalDialog>
     </Modal>
@@ -215,7 +221,9 @@ const Sidebar = (props:{configs:{[key:string]: TestConfig}, curConfigId:string, 
                 timeSignature: [4, 4],
                 lookaheadNotes: 0,
                 showNoteNames: false,
-                showNoteColors: false
+                showNoteColors: false,
+                createdDate: Date.now(),
+                updatedDate: Date.now(),
             }
 
             return prev; 

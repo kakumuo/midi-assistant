@@ -47,4 +47,5 @@ A midi visualizer for piano
     - UI Themeing
 ### Brainstorming
 - Display when Midi Device is connected or removed
+- Export individual config and multiple configs from Sightreading Settings
 - ~~iOS Support through WebMidi App~~ [DONE]
