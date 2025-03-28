@@ -1,10 +1,10 @@
 import React from "react";
-import { FormData, Scale, Staff, TestConfig } from "./types";
+import { FormData, Staff, TestConfig } from "./types";
 import { Box, Button, Checkbox, Divider, IconButton, Input, Modal, ModalDialog, Option, Select, Textarea, Tooltip, Typography } from "@mui/joy";
 import { StyleSheet } from "../../util";
 import { AddOutlined, BorderAll, DeleteOutline, InfoOutlined } from "@mui/icons-material";
 import { SightreadingContext } from ".";
-import { InstrumentKey, InstrumentNote } from "../../util/midi";
+import { InstrumentInputKey, InstrumentNote } from "../../util/midi";
 import { virtualKeyboardNotes } from "../../components/VirtualKeyboard";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,8 +15,6 @@ const settingsFormData:FormData[] = [
     {field: 'staffAndNotation', desc: 'Staff and Notation Settings', label: 'Staff and Notation', dataType: 'group'},
     {field: 'staff', desc: 'The staff to use (treble, bass, etc.)', label: 'Staff', dataType: 'staff'},
     {field: 'key', desc: 'The key of the scale', label: 'Key', dataType: 'key'},
-    {field: 'scale', desc: 'The scale to use for the test', label: 'Scale', dataType: 'scale'},
-    {field: 'timeSignature', desc: 'Time signature for the test', label: 'Time Signature', dataType: 'number,number'},
 
     // Note range and display settings
     {field: 'noteAndRange', desc: 'Note range and display settings', label: 'Note and Range', dataType: 'group'},
@@ -50,7 +48,6 @@ const settingsFormData:FormData[] = [
     {field: 'metronome', desc: 'Metronome tempo and beats per measure', label: 'Metronome Settings', dataType: 'number,number'},
 ]
 
-const scales:Array<Scale> = ['Major', 'Minor']
 const staves:Array<Staff> = ['Grand', 'Treble', 'Bass']
 
 export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, onClose:()=>void}) => {
@@ -94,17 +91,13 @@ export const SettingsModal = (props:{style?:React.CSSProperties, open:boolean, o
                 case 'number': 
                     input = <Input value={configs[curConfigId][data.field] as number} onChange={e => setFormData(data.field, e.currentTarget.value, 'boolean')} type="number" />
                     break; 
-                case 'scale': 
-                    input = <Select value={configs[curConfigId][data.field] as Scale} onChange={(_, v) => v && setFormData(data.field, v, 'scale')}>
-                        {scales.map(s => <Option key={s} value={s} children={s}/>)}</Select>
-                    break; 
                 case 'staff': 
                     input = <Select value={configs[curConfigId][data.field] as Staff} onChange={(_, v) => v && setFormData(data.field, v, 'staff')}>
                         {staves.map(s => <Option key={s} value={s} children={s}/>)}</Select>
                     break; 
                 case 'key': 
                     input = <Select onChange={(_, val) => setFormData(data.field, val, 'boolean')}
-                         value={configs[curConfigId][data.field] as string}>{InstrumentNote.keysList.map(k => <Option key={k} value={k} children={k} />)}</Select>
+                         value={configs[curConfigId][data.field] as string}>{InstrumentNote.keyListSharp.map(k => <Option key={k} value={k} children={k} />)}</Select>
                     break; 
                 case 'note': 
                     input = <Select><Option value={''} /></Select>

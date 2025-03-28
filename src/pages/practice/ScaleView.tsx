@@ -1,6 +1,6 @@
 import React from "react";
 import { useActiveNotes } from "../../util/midi/InputManager";
-import { InstrumentKey, InstrumentNote } from "../../util/midi";
+import { InstrumentInputKey, InstrumentNote } from "../../util/midi";
 import { useNoteColors } from "../../App";
 
 

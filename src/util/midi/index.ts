@@ -1,10 +1,13 @@
+export type InstrumentKey = "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" | "Db" | "Eb" | "Gb" | "Ab" | "Bb" | "Cb" | 'Fb';
+
 export class InstrumentNote {
-    static keysList = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; 
-    key: "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B" = 'C'; 
+    static keyListSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; 
+    static keyListFlat = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "Cb"]; 
+    key: InstrumentKey = 'C'; 
     octave: number = 0; 
     velocity?: number = 0
 
-    constructor(key:"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B", octave:number){
+    constructor(key:InstrumentKey, octave:number){
         this.key = key; 
         this.octave = octave; 
     }
@@ -17,7 +20,7 @@ export class InstrumentNote {
     static fromValue(value:number) {
         const octave = Math.floor(value / 12);
         const keyIndex = value % 12;
-        const key = InstrumentNote.keysList[keyIndex] as InstrumentNote['key'];
+        const key = InstrumentNote.keyListSharp[keyIndex] as InstrumentNote['key'];
         
         return new InstrumentNote(key, octave);
     }
@@ -51,12 +54,12 @@ export class InstrumentNote {
     }
 
     public valueOf() {
-        return InstrumentNote.keysList.indexOf(this.key) + (this.octave * 12); 
+        return InstrumentNote.keyListSharp.indexOf(this.key) + (this.octave * 12); 
     }
 
 
     static getValue(key:InstrumentNote['key'], octave:number) {
-        return InstrumentNote.keysList.indexOf(key) + (octave * 12); 
+        return InstrumentNote.keyListSharp.indexOf(key) + (octave * 12); 
     }
 
     public toString(){
@@ -64,7 +67,7 @@ export class InstrumentNote {
     }
 }
 
-export enum InstrumentKey {
+export enum InstrumentInputKey {
     SUS_BUTTON = "SUS",
     PEDAL = "PEDAL",
     NOTE_MOD_UP = "MOD_UP",
@@ -106,7 +109,7 @@ export interface InstrumentStateEvent extends InstrumentEvent {
 }
 
 export interface InstrumentKeyEvent extends InstrumentEvent  {
-    key:InstrumentKey, 
+    key:InstrumentInputKey, 
 }
 
 export interface InstrumentNoteEvent extends InstrumentEvent {

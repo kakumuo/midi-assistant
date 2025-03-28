@@ -1,5 +1,5 @@
 import React, { KeyboardEvent, useState } from "react"
-import { InstrumentEvent, InstrumentEventType, InstrumentKey, InstrumentKeyEvent, InstrumentNote, InstrumentNoteEvent, IntervalType, midiNoteMap } from ".";
+import { InstrumentEvent, InstrumentEventType, InstrumentInputKey, InstrumentKeyEvent, InstrumentNote, InstrumentNoteEvent, IntervalType, midiNoteMap } from ".";
 import { Chord } from "tonal";
 
 
@@ -25,8 +25,8 @@ const kbdNoteMap:{[key:string]: InstrumentNote} = {
     "'": new InstrumentNote("F",5)
 }
 
-const kbdKeyMap:{[key:string]: InstrumentKey} = {
-    ' ': InstrumentKey.PEDAL
+const kbdKeyMap:{[key:string]: InstrumentInputKey} = {
+    ' ': InstrumentInputKey.PEDAL
 }
 
 export class InstrumentInputManager {
@@ -87,7 +87,7 @@ export class InstrumentInputManager {
     private handleInput(
         isPressed: boolean,
         note: InstrumentNote | null,
-        key: InstrumentKey | null,
+        key: InstrumentInputKey | null,
         source: string,
         velocity: number
     ) {
@@ -115,7 +115,7 @@ export class InstrumentInputManager {
             } as InstrumentNoteEvent);
         } else if (key) {
             // Handle key input
-            if (key === InstrumentKey.PEDAL) {
+            if (key === InstrumentInputKey.PEDAL) {
                 this.setSustain(isPressed);
             }
 
@@ -136,7 +136,7 @@ export class InstrumentInputManager {
         let velocity = data[2];
 
         let note: InstrumentNote | null = null;
-        let key: InstrumentKey | null = null;
+        let key: InstrumentInputKey | null = null;
         let isPressed: boolean = false;
 
         // Process note
@@ -145,15 +145,15 @@ export class InstrumentInputManager {
             isPressed = prefix == 144;
             velocity = !isPressed ? 0 : velocity;
         } else if (prefix == 176 && midiNote == 64) {
-            key = InstrumentKey.PEDAL;
+            key = InstrumentInputKey.PEDAL;
             isPressed = velocity > 0;
             velocity = 0;
         } else if (prefix == 176 && midiNote == 72) {
-            key = InstrumentKey.SUS_BUTTON;
+            key = InstrumentInputKey.SUS_BUTTON;
             isPressed = velocity == 116;
             velocity = 0;
         } else if (prefix == 224) {
-            key = velocity > 64 ? InstrumentKey.NOTE_MOD_UP : InstrumentKey.NOTE_MOD_DOWN;
+            key = velocity > 64 ? InstrumentInputKey.NOTE_MOD_UP : InstrumentInputKey.NOTE_MOD_DOWN;
             isPressed = true;
         }
 
@@ -167,7 +167,7 @@ export class InstrumentInputManager {
         e.preventDefault();
 
         let note: InstrumentNote | null = null;
-        let key: InstrumentKey | null = null;
+        let key: InstrumentInputKey | null = null;
         let velocity = isPressed ? 64 : 0;
 
         if (kbdNoteMap.hasOwnProperty(e.key)) {

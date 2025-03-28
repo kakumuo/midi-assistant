@@ -1,44 +1,63 @@
 import React from "react";
-import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEvent } from "../../util/midi";
+import { InstrumentEvent, InstrumentEventType, InstrumentNote, InstrumentNoteEvent, InstrumentKey } from "../../util/midi";
 import { InstrumentInputContext, useActiveNotes } from "../../util/midi/InputManager";
 import shadows from "@mui/material/styles/shadows";
 import { generateTest } from "./generateTest";
-import { ArrowUpward, NoteSharp } from "@mui/icons-material";
+import { ArrowUpward, FlareSharp, NoteSharp } from "@mui/icons-material";
 import { NoteResult, StaffDisplayRange, TestConfig } from "./types";
 import { useNoteColors } from "../../App";
 
 
-const noteBarList:InstrumentNote[] = [
-    new InstrumentNote('B', 5),
-    new InstrumentNote('A', 5),
-    new InstrumentNote('G', 5),
-    new InstrumentNote('F', 5),
-    new InstrumentNote('E', 5),
-    new InstrumentNote('D', 5),
-    new InstrumentNote('C', 5),
+// Circle of Fifths
+const keySignatureTrebleFlatsList:InstrumentNote[] = [
     new InstrumentNote('B', 4),
+    new InstrumentNote('E', 5), 
     new InstrumentNote('A', 4),
+    new InstrumentNote('D', 5),
     new InstrumentNote('G', 4),
-    new InstrumentNote('F', 4),
+    new InstrumentNote('C', 5),
     new InstrumentNote('E', 4),
-    new InstrumentNote('D', 4),
-    new InstrumentNote('C', 4),
-
-    // new InstrumentNote('B', 3),
-    // new InstrumentNote('A', 3),
-    // new InstrumentNote('G', 3),
-    // new InstrumentNote('F', 3),
-    // new InstrumentNote('E', 3),
-    // new InstrumentNote('D', 3),
-    // new InstrumentNote('C', 3),
-    // new InstrumentNote('B', 2),
-    // new InstrumentNote('A', 2),
-    // new InstrumentNote('G', 2),
-    // new InstrumentNote('F', 2),
-    // new InstrumentNote('E', 2),
-    // new InstrumentNote('D', 2),
-    // new InstrumentNote('C', 2),
 ]
+
+const keySignatureBassFlatsList:InstrumentNote[] =[
+     new InstrumentNote('B', 2),
+     new InstrumentNote('E', 3), 
+     new InstrumentNote('A', 2),
+     new InstrumentNote('D', 3),
+     new InstrumentNote('G', 2),
+     new InstrumentNote('C', 3),
+     new InstrumentNote('E', 2),
+ ]
+
+const keySignatureTrebleSharpsList:InstrumentNote[] = [
+    new InstrumentNote('F', 5),
+    new InstrumentNote('C', 5),
+    new InstrumentNote('G', 5),
+    new InstrumentNote('D', 5),
+    new InstrumentNote('A', 4),
+    new InstrumentNote('E', 5),
+    new InstrumentNote('B', 4),
+]
+
+const keySignatureBassSharpsList:InstrumentNote[] = [
+    new InstrumentNote('F', 3),
+    new InstrumentNote('C', 3),
+    new InstrumentNote('G', 3),
+    new InstrumentNote('D', 3),
+    new InstrumentNote('A', 2),
+    new InstrumentNote('E', 3),
+    new InstrumentNote('B', 2),
+]
+
+const sharpOrder:InstrumentNote['key'][] = [
+    'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#'
+]
+
+const flatOrder:InstrumentKey[] = [
+    'C', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'
+]
+
+
 
 const trebleRange: StaffDisplayRange = {
     bars: [
@@ -152,15 +171,14 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             if(!InstrumentNote.isAccidental(i)) res.push(InstrumentNote.fromValue(i)); 
         }
 
-        console.log(res)
-
         return res; 
     }, [props.testConfig])
 
-    const {notes, bars, cursor, clef} = React.useMemo(() => {
-        const notes:React.JSX.Element[] = [];
+
+    // TODO: separate bar, clef and key signature rendering out from note rendering
+    const {bars, sharpsFlats, clef, xOffset, noteBarPosMap, barSpacing} = React.useMemo(() => {
         const bars:React.JSX.Element[] = [];
-        const cursor:React.JSX.Element[] = [];
+        const keySignature:React.JSX.Element[] = [];
         const clef:React.JSX.Element[] = [];   
         
         const PADDING = 32
@@ -178,9 +196,6 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
                 && props.testConfig.staff != 'Bass'
             const isInBassStaff = bassRange.bars.findIndex(b => b.valueOf() == curNoteBar.valueOf()) != -1 && 
                 props.testConfig.staff != 'Treble'
-
-            if(isInBassStaff)
-            console.log(curNoteBar)
 
             if(isInTrebleStaff || isInBassStaff)
                 bars.push(
@@ -216,14 +231,60 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             )
         }
 
+        // add sharps and flats; ignore if scale is not in C
+        const SIG_SPACING = 0;
+        const ACC_WIDTH = 15; 
+        const CLEF_OFFSET = 160; 
+        let xOffset = CLEF_OFFSET; 
+        const testKey = props.testConfig.key; 
+
+        let targetBassSigList = keySignatureBassSharpsList; 
+        let targetTrebleSigList = keySignatureTrebleSharpsList; 
+        let targetI = sharpOrder.indexOf(testKey); 
+        let accImagePath:string = 'sharp.png'; 
+
+        if(targetI ==  -1) {
+            targetI = flatOrder.indexOf(testKey); 
+            targetBassSigList = keySignatureBassFlatsList; 
+            targetTrebleSigList = keySignatureTrebleFlatsList; 
+            accImagePath = 'flat.png'; 
+        }
+
+        // since treble and bass keysignature are stored in one list, use pos & pos+7
+        for(let sigI = 0; sigI < targetI; sigI++){
+            const tmpList = []
+            tmpList.push(targetBassSigList[sigI])
+            tmpList.push(targetTrebleSigList[sigI])
+            console.log(sigI, tmpList)
+            for(let sig of tmpList){
+                
+                if(!noteBarPosMap.hasOwnProperty(sig.valueOf())) continue; 
+                const height = barSpacing * 2
+                const width = ACC_WIDTH
+                const yPos = noteBarPosMap[sig.valueOf()] - (height / 2)
+                const xPos = xOffset - (width /2)
+                keySignature.push(
+                    <image preserveAspectRatio="none" href={accImagePath} width={width} height={height} y={yPos} x={xPos}  />
+                )   
+            }
+            xOffset += SIG_SPACING + ACC_WIDTH
+        }
+        xOffset += SIG_SPACING + ACC_WIDTH;
+
+        return {bars, sharpsFlats: keySignature, clef, xOffset, noteBarPosMap, barSpacing}
+    }, [containerDim, barList])
+
+    const {notes, noteBars} = React.useMemo(() => {
+        const notes:React.JSX.Element[] = [];
+        const noteBars:React.JSX.Element[] = [];
         // add notes
         const NOTE_HORI_SPACING = 64; 
-        const CLEF_OFFSET = 200; 
-        let curX = CLEF_OFFSET; 
+        let curX = xOffset; 
         const noteRx = barSpacing; 
         const noteRy = noteRx * .75; 
 
         const remNotes = testNotes.slice(curNoteI); 
+        console.log(remNotes);
         for(let i = 0; i < remNotes.length; i++){
             const curNote = remNotes[i]; 
 
@@ -253,13 +314,14 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
                 )
             }
 
-            group.push(
-                <text x={curX} y={curY} textAnchor="middle" dominantBaseline={'middle'} 
-                    fontSize={noteRy} fontWeight={'bold'} 
-                    fill={targetColor}
-                    children={normNote.key}
-                />
-            )
+            if(props.testConfig.showNoteNames)
+                group.push(
+                    <text x={curX} y={curY} textAnchor="middle" dominantBaseline={'middle'} 
+                        fontSize={noteRy} fontWeight={'bold'} 
+                        fill={targetColor}
+                        children={normNote.key}
+                    />
+                )
 
             // add lines for out of staff notes
             const normNoteVal = normNote.valueOf(); // use note normalized to get around accidentals
@@ -267,17 +329,27 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             const tEndVal = trebleRange.bars[4].valueOf(); 
             const bStartVal = bassRange.bars[0].valueOf(); 
             const bEndVal = bassRange.bars[4].valueOf(); 
-            if(
-                (normNoteVal < tEndVal && tEndVal - normNoteVal > 2) || (normNoteVal > tStartVal && normNoteVal - tStartVal > 2)
-                || (normNoteVal < bEndVal && bEndVal - normNoteVal > 2) || (normNoteVal > bStartVal && normNoteVal - bStartVal > 2)
-            ) {
+
+            const isOutsideTrebleRange = props.testConfig.staff == 'Treble'
+                && ((normNoteVal > tStartVal && normNoteVal - tStartVal > 2) || (normNoteVal < tEndVal && tEndVal - normNoteVal > 2))
+            const isOutsideBassRange = props.testConfig.staff == 'Bass'
+                && ((normNoteVal > bStartVal && normNoteVal - bStartVal > 2) || (normNoteVal < bEndVal && bEndVal - normNoteVal > 2))
+            const isOutsideGrandRange = props.testConfig.staff == 'Grand' 
+                && (
+                    (normNoteVal > tStartVal && normNoteVal - tStartVal > 2)
+                    || (normNoteVal < tEndVal && tEndVal - normNoteVal > 2 && normNoteVal > bStartVal && normNoteVal - bStartVal > 2)
+                    || (normNoteVal < bEndVal && bEndVal - normNoteVal > 2)
+                )
+
+            if(isOutsideBassRange || isOutsideTrebleRange || isOutsideGrandRange) {
                 let lineY = curY;
                 
+                // shift line for notes outside of range
                 if(normNoteVal > tStartVal && ((normNoteVal - tStartVal) / 2) % 2 != 0){
                     lineY += noteRx; 
                 }
 
-                bars.push(
+                noteBars.push(
                     <line x1={curX - (noteRx * 2)} x2={curX + (noteRx * 2)} y1={lineY} y2={lineY} />
                 ); 
             }
@@ -286,14 +358,17 @@ export const TestDisplay = (props:{style?:React.CSSProperties, testNotes:Instrum
             curX += NOTE_HORI_SPACING + noteRx;
         }
         
-        return {notes, bars, cursor, clef}
-    }, [containerDim, curNoteI, testNotes])
+        return {notes, noteBars}
+    }, [curNoteI, containerDim, testNotes, barList])
+
 
     return <svg ref={ref} style={props.style}>
         <g stroke="black" strokeWidth={BAR_WIDTH}>
             {bars}
+            {noteBars}
         </g>
         {notes}
         {clef}
+        {sharpsFlats}
     </svg>
 }

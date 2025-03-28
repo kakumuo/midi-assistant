@@ -5,13 +5,13 @@ import { NavigationBar, NavigationOption } from "./components/NavigationBar";
 import { StyleSheet } from "./util";
 import { PracticePage } from "./pages/practice";
 import { InstrumentInputProvider } from "./util/midi/InputManager";
-import { InstrumentNote } from "./util/midi";
+import { InstrumentKey, InstrumentNote } from "./util/midi";
 import { SettingsPage } from "./pages/settings";
 import { SightReadingPage } from "./pages/sightreading";
 
 export type ApplicationConfig = {
     general: {
-        noteColors: Record<InstrumentNote['key'], string>
+        noteColors: Record<InstrumentKey, string>
     }, 
     practice: {
         showKeyboard: boolean, 
@@ -37,16 +37,23 @@ export const App = () => {
             noteColors: {
                 "C": '#FF0000',
                 "C#": '#FF7F00',
+                "Db": '#FF7F00',
                 "D": '#FFFF00',
                 "D#": '#00FF00',
+                "Eb": '#00FF00',
                 "E": '#0000FF',
+                "Fb": '#0000FF',
                 "F": '#4B0082',
                 "F#": '#9400D3',
+                "Gb": '#9400D3',
                 "G": '#FF1493',
                 "G#": '#00FFFF',
+                "Ab": '#00FFFF',
                 "A": '#FFD700',
                 "A#": '#00BA33',
+                "Bb": '#00BA33',
                 "B": '#8A2BE2',
+                "Cb": '#8A2BE2',
             }
         }, 
         practice: {

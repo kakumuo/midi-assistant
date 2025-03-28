@@ -24,7 +24,6 @@ import { InstrumentNote } from "../../util/midi"
  * showNoteColors               - boolean
  */
 
-export type Scale = 'Major' | 'Minor'
 export type Staff = 'Grand' | 'Treble' | 'Bass'
 
 export type TestConfig = {
@@ -33,10 +32,8 @@ export type TestConfig = {
     // Basic settings
     staff                   : Staff
     key                     : InstrumentNote['key']
-    scale                   : Scale
     useFlats                : boolean
     useSharps               : boolean
-    timeSignature           : [number, number]
     
     // Note range and display settings
     noteRange               : [number, number]

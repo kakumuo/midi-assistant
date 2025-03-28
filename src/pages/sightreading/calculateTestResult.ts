@@ -39,6 +39,7 @@ export const calculateResultData = (res:NoteResult[]) => {
         accuracy = n / (n + numMisses); 
         accuracy = Math.round(accuracy * 10000) / 100
         avgTempo /= Math.max(n - 1, 1); 
+        avgTempo = Math.round(avgTempo * 100) / 100
         avgVelocity /= n;
 
     }
